@@ -44,14 +44,6 @@ namespace FitFactoryCodeGeneratorV2
             txtPluralName.Text = txtTableName.Text + "s";
         }
 
-        private void btnGenerate_Click(object sender, EventArgs e)
-        {
-            string path = txtSelectFolder.Text + "\\" +txtTableName.Text + ".txt";
-            File.Create(path);
-            MessageBox.Show("Successfully created text file to " + txtSelectFolder.Text);
-            ClearFields();
-        }
-
 
         public void ClearFields()
         {
@@ -60,6 +52,14 @@ namespace FitFactoryCodeGeneratorV2
             txtPluralName.Clear();
             checkCore.Checked = false;
             dataGridPropertyFields.Rows.Clear();
+        }
+
+        private void btnGenerate_Click(object sender, EventArgs e)
+        {
+            string path = txtSelectFolder.Text + "\\" + txtTableName.Text + ".cs";
+            File.Create(path);
+            MessageBox.Show("Successfully created text file to " + txtSelectFolder.Text);
+            ClearFields();
         }
     }
 }
