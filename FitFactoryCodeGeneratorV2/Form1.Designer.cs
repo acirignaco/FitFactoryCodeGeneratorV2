@@ -52,19 +52,20 @@
             // 
             // btnGenerate
             // 
-            this.btnGenerate.BackColor = System.Drawing.Color.MediumSeaGreen;
+            this.btnGenerate.BackColor = System.Drawing.Color.White;
             this.btnGenerate.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.btnGenerate.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnGenerate.FlatAppearance.BorderColor = System.Drawing.Color.MediumSeaGreen;
             this.btnGenerate.FlatAppearance.MouseDownBackColor = System.Drawing.Color.MediumSeaGreen;
             this.btnGenerate.FlatAppearance.MouseOverBackColor = System.Drawing.Color.MediumSeaGreen;
             this.btnGenerate.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnGenerate.Location = new System.Drawing.Point(301, 416);
+            this.btnGenerate.Location = new System.Drawing.Point(303, 445);
             this.btnGenerate.Name = "btnGenerate";
-            this.btnGenerate.Size = new System.Drawing.Size(145, 46);
+            this.btnGenerate.Size = new System.Drawing.Size(145, 37);
             this.btnGenerate.TabIndex = 0;
             this.btnGenerate.Text = "Generate Code";
             this.btnGenerate.UseVisualStyleBackColor = false;
+            this.btnGenerate.Click += new System.EventHandler(this.btnGenerate_Click);
             // 
             // dataGridPropertyFields
             // 
@@ -75,8 +76,7 @@
             this.Length,
             this.Type,
             this.IsKey});
-            this.dataGridPropertyFields.Cursor = System.Windows.Forms.Cursors.Default;
-            this.dataGridPropertyFields.Location = new System.Drawing.Point(22, 260);
+            this.dataGridPropertyFields.Location = new System.Drawing.Point(20, 289);
             this.dataGridPropertyFields.Name = "dataGridPropertyFields";
             this.dataGridPropertyFields.RowTemplate.Height = 25;
             this.dataGridPropertyFields.Size = new System.Drawing.Size(545, 150);
@@ -112,12 +112,12 @@
             // 
             // btnClear
             // 
-            this.btnClear.BackColor = System.Drawing.Color.IndianRed;
+            this.btnClear.BackColor = System.Drawing.Color.White;
             this.btnClear.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnClear.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnClear.Location = new System.Drawing.Point(452, 416);
+            this.btnClear.Location = new System.Drawing.Point(454, 445);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(115, 46);
+            this.btnClear.Size = new System.Drawing.Size(115, 37);
             this.btnClear.TabIndex = 2;
             this.btnClear.Text = "Clear";
             this.btnClear.UseVisualStyleBackColor = false;
@@ -128,7 +128,7 @@
             this.checkCore.AutoSize = true;
             this.checkCore.Cursor = System.Windows.Forms.Cursors.Hand;
             this.checkCore.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.checkCore.Location = new System.Drawing.Point(105, 214);
+            this.checkCore.Location = new System.Drawing.Point(172, 230);
             this.checkCore.Name = "checkCore";
             this.checkCore.Size = new System.Drawing.Size(15, 14);
             this.checkCore.TabIndex = 3;
@@ -137,41 +137,43 @@
             // 
             // txtSelectFolder
             // 
-            this.txtSelectFolder.Location = new System.Drawing.Point(22, 40);
+            this.txtSelectFolder.Location = new System.Drawing.Point(24, 60);
             this.txtSelectFolder.Name = "txtSelectFolder";
             this.txtSelectFolder.Size = new System.Drawing.Size(443, 23);
             this.txtSelectFolder.TabIndex = 4;
             // 
             // txtPluralName
             // 
-            this.txtPluralName.Location = new System.Drawing.Point(22, 166);
+            this.txtPluralName.Location = new System.Drawing.Point(24, 186);
             this.txtPluralName.Name = "txtPluralName";
             this.txtPluralName.Size = new System.Drawing.Size(541, 23);
             this.txtPluralName.TabIndex = 5;
+            this.txtPluralName.TextChanged += new System.EventHandler(this.txtPluralName_TextChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label1.Location = new System.Drawing.Point(22, 22);
+            this.label1.Location = new System.Drawing.Point(24, 42);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(152, 15);
+            this.label1.Size = new System.Drawing.Size(93, 15);
             this.label1.TabIndex = 6;
-            this.label1.Text = "Select Project Destination...";
+            this.label1.Text = "Project Location";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label2.Location = new System.Drawing.Point(22, 148);
+            this.label2.Location = new System.Drawing.Point(24, 168);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(81, 15);
+            this.label2.Size = new System.Drawing.Size(37, 15);
             this.label2.TabIndex = 7;
-            this.label2.Text = "Plural Name...";
+            this.label2.Text = "Plural";
             // 
             // txtTableName
             // 
-            this.txtTableName.Location = new System.Drawing.Point(22, 101);
+            this.txtTableName.Location = new System.Drawing.Point(24, 121);
             this.txtTableName.Name = "txtTableName";
             this.txtTableName.Size = new System.Drawing.Size(539, 23);
             this.txtTableName.TabIndex = 8;
@@ -180,29 +182,30 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label3.Location = new System.Drawing.Point(22, 83);
+            this.label3.Location = new System.Drawing.Point(24, 103);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(79, 15);
+            this.label3.Size = new System.Drawing.Size(70, 15);
             this.label3.TabIndex = 9;
-            this.label3.Text = "Table Name...";
+            this.label3.Text = "Table Name";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label4.Location = new System.Drawing.Point(22, 242);
+            this.label4.Location = new System.Drawing.Point(24, 267);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(76, 15);
+            this.label4.Size = new System.Drawing.Size(118, 15);
             this.label4.TabIndex = 10;
-            this.label4.Text = "Enter Fields...";
+            this.label4.Text = "Enter Data Properties";
             // 
             // btnSelectFolder
             // 
-            this.btnSelectFolder.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
+            this.btnSelectFolder.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.btnSelectFolder.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnSelectFolder.FlatAppearance.BorderColor = System.Drawing.SystemColors.GradientActiveCaption;
             this.btnSelectFolder.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnSelectFolder.Location = new System.Drawing.Point(471, 40);
+            this.btnSelectFolder.ForeColor = System.Drawing.Color.Black;
+            this.btnSelectFolder.Location = new System.Drawing.Point(473, 60);
             this.btnSelectFolder.Name = "btnSelectFolder";
             this.btnSelectFolder.Size = new System.Drawing.Size(94, 23);
             this.btnSelectFolder.TabIndex = 11;
@@ -214,17 +217,17 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label5.Location = new System.Drawing.Point(22, 213);
+            this.label5.Location = new System.Drawing.Point(24, 228);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(77, 15);
+            this.label5.Size = new System.Drawing.Size(129, 15);
             this.label5.TabIndex = 12;
-            this.label5.Text = "Is Core Class?";
+            this.label5.Text = "Create Core Class Only?";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(590, 476);
+            this.ClientSize = new System.Drawing.Size(590, 506);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.btnSelectFolder);
             this.Controls.Add(this.label4);
@@ -238,7 +241,6 @@
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.dataGridPropertyFields);
             this.Controls.Add(this.btnGenerate);
-            this.Cursor = System.Windows.Forms.Cursors.Default;
             this.Name = "Form1";
             this.Text = "FitFactory Code Generator";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridPropertyFields)).EndInit();
