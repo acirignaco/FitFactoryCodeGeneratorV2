@@ -32,5 +32,17 @@ namespace FitFactoryCodeGeneratorV2
         {
 
         }
+
+
+
+        private void txtTableName_TextChanged(object sender, EventArgs e)
+        {
+            if (txtTableName.Text.Any() && !System.Text.RegularExpressions.Regex.IsMatch(txtTableName.Text, "^[a-zA-Z]+$"))
+            {
+                //MessageBox.Show("This textbox accepts only alphabetical characters");
+                txtTableName.Text = txtTableName.Text.Remove(txtTableName.Text.Length - 1, 1);
+            }
+            txtPluralName.Text = txtTableName.Text + "s";
+        }
     }
 }
