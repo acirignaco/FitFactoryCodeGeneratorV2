@@ -36,7 +36,10 @@ namespace FitFactoryCodeGeneratorV2
             if (txtTableName.Text.Any() && !System.Text.RegularExpressions.Regex.IsMatch(txtTableName.Text, "^[a-zA-Z]+$"))
             {
                 //MessageBox.Show("This textbox accepts only alphabetical characters");
-                txtTableName.Text = txtTableName.Text.Remove(txtTableName.Text.Length - 1, 1);
+                //txtTableName.Text = txtTableName.Text.Remove(txtTableName.Text.Length - 1);
+                txtTableName.Text = txtTableName.Text.Substring(0, txtTableName.Text.Length - 1);
+                txtTableName.SelectionStart = txtTableName.Text.Length;
+
             }
             txtPluralName.Text = txtTableName.Text + "s";
         }
