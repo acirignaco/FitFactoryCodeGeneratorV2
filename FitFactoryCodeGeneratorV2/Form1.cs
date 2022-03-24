@@ -21,16 +21,30 @@ namespace FitFactoryCodeGeneratorV2
 
         private void btnClear_Click(object sender, EventArgs e)
         {
-            txtSelectFolder.Clear();
-            txtTableName.Clear();
-            txtPluralName.Clear();
-            checkCore.Checked = false;
-            dataGridPropertyFields.Rows.Clear();
+            ClearFields();
         }
 
         private void dataGridPropertyFields_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
+        }
+
+        private void btnGenerate_Click(object sender, EventArgs e)
+        {
+            string path = txtSelectFolder.Text + "\\" +txtTableName.Text + ".txt";
+            File.Create(path);
+            MessageBox.Show("Successfully created text file to " + txtSelectFolder.Text);
+            ClearFields();
+        }
+
+
+        public void ClearFields()
+        {
+            txtSelectFolder.Clear();
+            txtTableName.Clear();
+            txtPluralName.Clear();
+            checkCore.Checked = false;
+            dataGridPropertyFields.Rows.Clear();
         }
     }
 }

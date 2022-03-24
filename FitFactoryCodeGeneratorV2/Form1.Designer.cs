@@ -148,7 +148,6 @@
             this.txtPluralName.Name = "txtPluralName";
             this.txtPluralName.Size = new System.Drawing.Size(541, 23);
             this.txtPluralName.TabIndex = 5;
-            this.txtPluralName.TextChanged += new System.EventHandler(this.txtPluralName_TextChanged);
             // 
             // label1
             // 
@@ -159,7 +158,6 @@
             this.label1.Size = new System.Drawing.Size(93, 15);
             this.label1.TabIndex = 6;
             this.label1.Text = "Project Location";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // label2
             // 
