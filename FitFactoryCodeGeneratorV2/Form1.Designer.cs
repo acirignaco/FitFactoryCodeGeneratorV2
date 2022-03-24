@@ -31,9 +31,9 @@
             this.btnGenerate = new System.Windows.Forms.Button();
             this.dataGridPropertyFields = new System.Windows.Forms.DataGridView();
             this.PropertyName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Required = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Length = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Length = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Required = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.IsKey = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.btnClear = new System.Windows.Forms.Button();
             this.checkCore = new System.Windows.Forms.CheckBox();
@@ -71,9 +71,9 @@
             this.dataGridPropertyFields.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridPropertyFields.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.PropertyName,
-            this.Required,
-            this.Length,
             this.Type,
+            this.Length,
+            this.Required,
             this.IsKey});
             this.dataGridPropertyFields.Location = new System.Drawing.Point(20, 289);
             this.dataGridPropertyFields.Name = "dataGridPropertyFields";
@@ -87,22 +87,23 @@
             this.PropertyName.HeaderText = "Property Name";
             this.PropertyName.Name = "PropertyName";
             // 
-            // Required
+            // Type
             // 
-            this.Required.HeaderText = "Required?";
-            this.Required.Name = "Required";
-            this.Required.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Required.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.Type.HeaderText = "Type";
+            this.Type.Name = "Type";
+            this.Type.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             // 
             // Length
             // 
             this.Length.HeaderText = "Length";
             this.Length.Name = "Length";
             // 
-            // Type
+            // Required
             // 
-            this.Type.HeaderText = "Type";
-            this.Type.Name = "Type";
+            this.Required.HeaderText = "Required?";
+            this.Required.Name = "Required";
+            this.Required.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Required.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             // 
             // IsKey
             // 
@@ -239,7 +240,9 @@
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.dataGridPropertyFields);
             this.Controls.Add(this.btnGenerate);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "FitFactory Code Generator";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridPropertyFields)).EndInit();
             this.ResumeLayout(false);
@@ -255,11 +258,6 @@
         private CheckBox checkCore;
         private TextBox txtSelectFolder;
         private TextBox txtPluralName;
-        private DataGridViewTextBoxColumn PropertyName;
-        private DataGridViewCheckBoxColumn Required;
-        private DataGridViewTextBoxColumn Length;
-        private DataGridViewTextBoxColumn Type;
-        private DataGridViewCheckBoxColumn IsKey;
         private Label label1;
         private Label label2;
         private TextBox txtTableName;
@@ -268,5 +266,10 @@
         private FolderBrowserDialog folderBrowserDialog1;
         private Button btnSelectFolder;
         private Label label5;
+        private DataGridViewTextBoxColumn PropertyName;
+        private DataGridViewTextBoxColumn Type;
+        private DataGridViewTextBoxColumn Length;
+        private DataGridViewCheckBoxColumn Required;
+        private DataGridViewCheckBoxColumn IsKey;
     }
 }
