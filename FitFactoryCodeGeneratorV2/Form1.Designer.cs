@@ -69,6 +69,10 @@
             // 
             // dataGridPropertyFields
             // 
+            this.dataGridPropertyFields.AllowUserToDeleteRows = false;
+            this.dataGridPropertyFields.AllowUserToOrderColumns = true;
+            this.dataGridPropertyFields.AllowUserToResizeColumns = false;
+            this.dataGridPropertyFields.AllowUserToResizeRows = false;
             this.dataGridPropertyFields.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridPropertyFields.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.PropertyName,
@@ -78,6 +82,7 @@
             this.IsKey});
             this.dataGridPropertyFields.Location = new System.Drawing.Point(20, 289);
             this.dataGridPropertyFields.Name = "dataGridPropertyFields";
+            this.dataGridPropertyFields.RowHeadersWidth = 62;
             this.dataGridPropertyFields.RowTemplate.Height = 25;
             this.dataGridPropertyFields.Size = new System.Drawing.Size(545, 150);
             this.dataGridPropertyFields.TabIndex = 1;
@@ -86,30 +91,40 @@
             // PropertyName
             // 
             this.PropertyName.HeaderText = "Property Name";
+            this.PropertyName.MinimumWidth = 8;
             this.PropertyName.Name = "PropertyName";
+            this.PropertyName.Width = 150;
             // 
             // Type
             // 
             this.Type.HeaderText = "Type";
+            this.Type.MinimumWidth = 8;
             this.Type.Name = "Type";
             this.Type.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Type.Width = 150;
             // 
             // Length
             // 
             this.Length.HeaderText = "Length";
+            this.Length.MinimumWidth = 8;
             this.Length.Name = "Length";
+            this.Length.Width = 150;
             // 
             // Required
             // 
             this.Required.HeaderText = "Required?";
+            this.Required.MinimumWidth = 8;
             this.Required.Name = "Required";
             this.Required.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.Required.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.Required.Width = 150;
             // 
             // IsKey
             // 
             this.IsKey.HeaderText = "IsKey?";
+            this.IsKey.MinimumWidth = 8;
             this.IsKey.Name = "IsKey";
+            this.IsKey.Width = 150;
             // 
             // btnClear
             // 
@@ -244,7 +259,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "FitFactory Code Generator";
+            this.Text = " ";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridPropertyFields)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -56,10 +56,86 @@ namespace FitFactoryCodeGeneratorV2
 
         private void btnGenerate_Click(object sender, EventArgs e)
         {
+            btnGenerate_Click(sender, e, dataGridPropertyFields);
+        }
+
+        private void btnGenerate_Click(object sender, EventArgs e, DataGridView dataGridPropertyFields)
+        {
             string path = txtSelectFolder.Text + "\\" + txtTableName.Text + ".cs";
-            File.Create(path);
+            // generate basic content for .cs file
+            string csContent = GenerateCodeStructureCS(txtTableName.Text, dataGridPropertyFields);
+            // do somehting that inputs in above file
+            var currQty = "";
+           
+
+            StreamWriterCreate(path, csContent);
+
+            
+            //File.Create(path);
             MessageBox.Show("Successfully created text file to " + txtSelectFolder.Text);
             ClearFields();
+            
+
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path">Path of file location with file appended</param>
+        /// <param name="content"></param>
+        public void StreamWriterCreate(string path, string content)
+        {
+
+            if (!File.Exists(path))
+            {
+                // Create a file to write to.
+                using (StreamWriter sw = File.CreateText(path))
+                {
+                    sw.WriteLine(content);
+                }
+            }
+
+        }
+
+
+        public string GenerateCodeStructureCS(string filename, DataGridView dataGridView)
+        {
+            string codeStructure = "";
+            string tab = "    ";
+            string dtab = "        ";
+            string imports = "using System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Text;\nusing System.Threading.Tasks;\nusing System.ComponentModel.DataAnnotations;\n";
+            string namespaceAndClass = $"\nnamespace FitFactoryCodeGeneratorV2\n{{\n{tab}public class {char.ToUpper(filename[0]) + filename.Substring(1)} \n{tab}{{\n";
+
+            codeStructure = imports + namespaceAndClass;
+
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+
+                }
+                else
+                {
+                    if ((row.Cells["IsKey"].Value != null) && (bool)row.Cells["IsKey"].Value == true)
+                    {
+                        codeStructure += dtab + "[Key]\n";
+                    }
+                    if ((row.Cells["Required"].Value != null) && (bool)row.Cells["Required"].Value == true)
+                    {
+                        codeStructure += dtab + "[Required]\n";
+                    }
+                    if ((row.Cells["Length"].Value != null) && !row.Cells["Length"].Value.Equals(""))
+                    {
+                        codeStructure += dtab + $"[MaxLength({row.Cells["Length"].Value})]\n";
+                    }
+                    codeStructure += dtab + "public ";
+                    codeStructure += row.Cells["Type"].Value + " ";
+                    codeStructure += row.Cells["PropertyName"].Value + " { get; set; } \n\n";
+                }
+            }
+            codeStructure += "\n" + tab + "}" + "\n}";
+            return codeStructure;
         }
     }
 }
