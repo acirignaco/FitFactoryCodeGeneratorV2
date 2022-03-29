@@ -116,7 +116,6 @@ namespace FitFactoryCodeGeneratorV2
                 string fileLocation = "C:\\Users\\William\\Desktop\\test\\Data\\" + txtTableName.Text + "Service.cs";
                 csContent = "";
                 StreamWriterCreate(fileLocation, csContent);
-
             }
 
             ClearFields();
@@ -168,6 +167,7 @@ namespace FitFactoryCodeGeneratorV2
                     codeStructure += row.Cells["PropertyName"].Value + " { get; set; } \n\n";
                 }
             }
+
             codeStructure += "\n" + tab + "}" + "\n}";
             return codeStructure;
         }
@@ -189,7 +189,7 @@ namespace FitFactoryCodeGeneratorV2
             codeStructure += $"\n\n{dtab}public {txtTableName.Text}? Update({txtTableName.Text} obj)\n{dtab}{{\n{tab}{dtab}var dataObject = _appDbContext.{txtPluralName.Text}.FirstOrDefault(e => e.Id == obj.Id);\n{tab}{dtab}if (dataObject != null)\n{tab}{dtab}{{";
             foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
             {
-                if (row.Cells[0].Value != null )
+                if (row.Cells[0].Value != null && row.Cells["IsKey"].Value == null)
                 {
                     codeStructure += $"\n{dtab}{dtab}dataObject.{row.Cells[0].Value} = obj.{row.Cells[0].Value};";                    
                 }
