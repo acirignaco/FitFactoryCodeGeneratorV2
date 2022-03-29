@@ -62,7 +62,7 @@
             this.btnGenerate.Location = new System.Drawing.Point(303, 445);
             this.btnGenerate.Name = "btnGenerate";
             this.btnGenerate.Size = new System.Drawing.Size(145, 37);
-            this.btnGenerate.TabIndex = 0;
+            this.btnGenerate.TabIndex = 7;
             this.btnGenerate.Text = "Generate Code";
             this.btnGenerate.UseVisualStyleBackColor = false;
             this.btnGenerate.Click += new System.EventHandler(this.btnGenerate_Click);
@@ -80,7 +80,7 @@
             this.dataGridPropertyFields.Name = "dataGridPropertyFields";
             this.dataGridPropertyFields.RowTemplate.Height = 25;
             this.dataGridPropertyFields.Size = new System.Drawing.Size(545, 150);
-            this.dataGridPropertyFields.TabIndex = 1;
+            this.dataGridPropertyFields.TabIndex = 6;
             // 
             // PropertyName
             // 
@@ -118,7 +118,7 @@
             this.btnClear.Location = new System.Drawing.Point(454, 445);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(115, 37);
-            this.btnClear.TabIndex = 2;
+            this.btnClear.TabIndex = 8;
             this.btnClear.Text = "Clear";
             this.btnClear.UseVisualStyleBackColor = false;
             this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
@@ -131,7 +131,7 @@
             this.checkCore.Location = new System.Drawing.Point(172, 230);
             this.checkCore.Name = "checkCore";
             this.checkCore.Size = new System.Drawing.Size(15, 14);
-            this.checkCore.TabIndex = 3;
+            this.checkCore.TabIndex = 5;
             this.checkCore.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.checkCore.UseVisualStyleBackColor = true;
             // 
@@ -140,14 +140,14 @@
             this.txtSelectFolder.Location = new System.Drawing.Point(24, 60);
             this.txtSelectFolder.Name = "txtSelectFolder";
             this.txtSelectFolder.Size = new System.Drawing.Size(443, 23);
-            this.txtSelectFolder.TabIndex = 4;
+            this.txtSelectFolder.TabIndex = 1;
             // 
             // txtPluralName
             // 
             this.txtPluralName.Location = new System.Drawing.Point(24, 186);
             this.txtPluralName.Name = "txtPluralName";
             this.txtPluralName.Size = new System.Drawing.Size(541, 23);
-            this.txtPluralName.TabIndex = 5;
+            this.txtPluralName.TabIndex = 4;
             // 
             // label1
             // 
@@ -156,7 +156,7 @@
             this.label1.Location = new System.Drawing.Point(24, 42);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(93, 15);
-            this.label1.TabIndex = 6;
+            this.label1.TabIndex = 0;
             this.label1.Text = "Project Location";
             // 
             // label2
@@ -166,7 +166,7 @@
             this.label2.Location = new System.Drawing.Point(24, 168);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(37, 15);
-            this.label2.TabIndex = 7;
+            this.label2.TabIndex = 0;
             this.label2.Text = "Plural";
             // 
             // txtTableName
@@ -174,7 +174,7 @@
             this.txtTableName.Location = new System.Drawing.Point(24, 121);
             this.txtTableName.Name = "txtTableName";
             this.txtTableName.Size = new System.Drawing.Size(539, 23);
-            this.txtTableName.TabIndex = 8;
+            this.txtTableName.TabIndex = 3;
             this.txtTableName.TextChanged += new System.EventHandler(this.txtTableName_TextChanged);
             // 
             // label3
@@ -184,7 +184,7 @@
             this.label3.Location = new System.Drawing.Point(24, 103);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(70, 15);
-            this.label3.TabIndex = 9;
+            this.label3.TabIndex = 0;
             this.label3.Text = "Table Name";
             // 
             // label4
@@ -194,7 +194,7 @@
             this.label4.Location = new System.Drawing.Point(24, 267);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(118, 15);
-            this.label4.TabIndex = 10;
+            this.label4.TabIndex = 0;
             this.label4.Text = "Enter Data Properties";
             // 
             // btnSelectFolder
@@ -207,7 +207,7 @@
             this.btnSelectFolder.Location = new System.Drawing.Point(473, 60);
             this.btnSelectFolder.Name = "btnSelectFolder";
             this.btnSelectFolder.Size = new System.Drawing.Size(94, 23);
-            this.btnSelectFolder.TabIndex = 11;
+            this.btnSelectFolder.TabIndex = 2;
             this.btnSelectFolder.Text = "Select...";
             this.btnSelectFolder.UseVisualStyleBackColor = false;
             this.btnSelectFolder.Click += new System.EventHandler(this.btnSelectFolder_Click);
@@ -219,7 +219,7 @@
             this.label5.Location = new System.Drawing.Point(24, 228);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(129, 15);
-            this.label5.TabIndex = 12;
+            this.label5.TabIndex = 0;
             this.label5.Text = "Create Core Class Only?";
             // 
             // Form1
