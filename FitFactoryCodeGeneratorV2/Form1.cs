@@ -60,9 +60,30 @@ namespace FitFactoryCodeGeneratorV2
 
         private void btnGenerate_Click(object sender, EventArgs e)
         {
-            btnGenerate_Click(sender, e, dataGridPropertyFields);
+            bool successfulValidation = FormValidation();
+            if (successfulValidation)
+                btnGenerate_Click(sender, e, dataGridPropertyFields);
         }
 
+        public bool FormValidation()
+        {
+            if (txtSelectFolder.Text == string.Empty)
+            {
+                MessageBox.Show("Please enter a folder location for Model!");
+                return false;
+            }
+            else if (txtTableName.Text == string.Empty)
+            {
+                MessageBox.Show("Please enter a Table Name!");
+                return false;
+            }
+            else if (txtPluralName.Text == string.Empty)
+            {
+                MessageBox.Show("Please enter a Plural Name!");
+                return false;
+            }
+            return true;
+        }
         private void btnGenerate_Click(object sender, EventArgs e, DataGridView dataGridPropertyFields)
         {
             string path = txtSelectFolder.Text + "\\" + txtTableName.Text + ".cs";
