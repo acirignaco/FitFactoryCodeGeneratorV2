@@ -71,7 +71,6 @@
             // 
             this.dataGridPropertyFields.AllowUserToDeleteRows = false;
             this.dataGridPropertyFields.AllowUserToOrderColumns = true;
-            this.dataGridPropertyFields.AllowUserToResizeColumns = false;
             this.dataGridPropertyFields.AllowUserToResizeRows = false;
             this.dataGridPropertyFields.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridPropertyFields.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -179,7 +178,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label2.Location = new System.Drawing.Point(24, 168);
+            this.label2.Location = new System.Drawing.Point(20, 147);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(37, 15);
             this.label2.TabIndex = 7;
@@ -197,7 +196,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label3.Location = new System.Drawing.Point(24, 103);
+            this.label3.Location = new System.Drawing.Point(24, 86);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(70, 15);
             this.label3.TabIndex = 9;
@@ -260,6 +259,7 @@
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = " ";
+            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridPropertyFields)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
