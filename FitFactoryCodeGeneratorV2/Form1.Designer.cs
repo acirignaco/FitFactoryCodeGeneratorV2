@@ -81,7 +81,6 @@
             this.dataGridPropertyFields.RowTemplate.Height = 25;
             this.dataGridPropertyFields.Size = new System.Drawing.Size(545, 150);
             this.dataGridPropertyFields.TabIndex = 1;
-            this.dataGridPropertyFields.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridPropertyFields_CellContentClick);
             // 
             // PropertyName
             // 

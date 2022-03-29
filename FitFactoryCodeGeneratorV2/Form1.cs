@@ -11,11 +11,6 @@ namespace FitFactoryCodeGeneratorV2
             InitializeComponent();
         }
 
-        private void folderBrowserDialog1_HelpRequest(object sender, EventArgs e)
-        {
-
-        }
-
         private void btnSelectFolder_Click(object sender, EventArgs e)
         {
             folderBrowserDialog1.ShowDialog();
@@ -28,26 +23,15 @@ namespace FitFactoryCodeGeneratorV2
             ClearFields();
         }
 
-        private void dataGridPropertyFields_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-
-
         private void txtTableName_TextChanged(object sender, EventArgs e)
         {
             if (txtTableName.Text.Any() && !System.Text.RegularExpressions.Regex.IsMatch(txtTableName.Text, "^[a-zA-Z]+$"))
             {
-                //MessageBox.Show("This textbox accepts only alphabetical characters");
-                //txtTableName.Text = txtTableName.Text.Remove(txtTableName.Text.Length - 1);
                 txtTableName.Text = txtTableName.Text.Substring(0, txtTableName.Text.Length - 1);
                 txtTableName.SelectionStart = txtTableName.Text.Length;
-
             }
             txtPluralName.Text = txtTableName.Text + "s";
         }
-
 
         public void ClearFields()
         {
@@ -84,6 +68,7 @@ namespace FitFactoryCodeGeneratorV2
             }
             return true;
         }
+
         private void btnGenerate_Click(object sender, EventArgs e, DataGridView dataGridPropertyFields)
         {
             string path = txtSelectFolder.Text + "\\" + txtTableName.Text + ".cs";
@@ -112,20 +97,11 @@ namespace FitFactoryCodeGeneratorV2
             string path = txtSelectFolder.Text + "\\" + txtTableName.Text + ".cs";
             string csContent = "";
 
-            // backup file
-            // overwrite file
-            // generate basic content for .cs file
+            // generate basic content for model.cs file
             csContent = GenerateCodeStructureCS(txtTableName.Text, dataGridPropertyFields);
             // do somehting that inputs in above file           
             StreamWriterCreate(path, csContent);
             MessageBox.Show("Successfully created " + txtTableName.Text + ".cs to " + txtSelectFolder.Text);
-
-            //CREATE CLASS
-            //string path = txtSelectFolder.Text + "\\" + txtTableName.Text + ".cs";
-            //// generate basic content for .cs file
-            //string csContent = GenerateCodeStructureCS(txtTableName.Text, dataGridPropertyFields);
-            //// do somehting that inputs in above file           
-            //StreamWriterCreate(path, csContent);
 
 
             // CREATE SERVICE CLASS
@@ -146,11 +122,6 @@ namespace FitFactoryCodeGeneratorV2
             ClearFields();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="path">Path of file location with file appended</param>
-        /// <param name="content"></param>
         public void StreamWriterCreate(string path, string content)
         {
             if (!File.Exists(path))
@@ -163,7 +134,6 @@ namespace FitFactoryCodeGeneratorV2
                 }
             }
         }
-
 
         public string GenerateCodeStructureCS(string filename, DataGridView dataGridView)
         {
@@ -221,30 +191,14 @@ namespace FitFactoryCodeGeneratorV2
             {
                 if (row.Cells[0].Value != null )
                 {
-                
                     codeStructure += $"\n{dtab}{dtab}dataObject.{row.Cells[0].Value} = obj.{row.Cells[0].Value};";                    
                 }
             }
 
             codeStructure += $"\n\n{dtab}{dtab}_appDbContext.SaveChanges();\n{dtab}{dtab}return dataObject;\n{tab}{dtab}}}\n{tab}{dtab}return null;\n{dtab}}}";
-
             codeStructure += "\n" + tab + "}" + "\n}";
             return codeStructure;
         }
 
-        private void txtPluralName_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtPluralName_TextChanged_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
     }
 }
