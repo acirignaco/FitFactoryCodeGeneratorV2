@@ -94,37 +94,35 @@ namespace FitFactoryCodeGeneratorV2
 
         public void OverrideFiles(string sourceFile)
         {
+            string subStringPath = txtSelectFolder.Text.Remove(txtSelectFolder.Text.Length - 6);
+
             // MessageBox.Show("Override both files!");
             // Move Model class file to BackupFolder
-            string destinationFile = @"C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\BackupFiles\\" + txtTableName.Text + DateTime.Now.ToString("_MM_dd_yyyy_HH_mm_ss") + ".cs";
+            //string destinationFile = @"C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\BackupFiles\\" + txtTableName.Text + DateTime.Now.ToString("_MM_dd_yyyy_HH_mm_ss") + ".cs";
+            string destinationFile = subStringPath + "BackupFiles\\" + txtTableName.Text + DateTime.Now.ToString("_MM_dd_yyyy_HH_mm_ss") + ".cs";
 
             // To move a file or folder to a new location:
             System.IO.File.Move(sourceFile, destinationFile);
 
-
             // Move Model class file to BackupFolder
-            string sourceFileServiceCore = "C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\Data\\" + txtTableName.Text + "Service.Core.cs";
-            string destinationFileCore = @"C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\BackupFiles\\" + txtTableName.Text + "Service.Core" + DateTime.Now.ToString("_MM_dd_yyyy_HH_mm_ss") + ".cs";
+            string sourceFileServiceCore = subStringPath + "Data\\" + txtTableName.Text + "Service.Core.cs";
+            string destinationFileCore = subStringPath + "BackupFiles\\" + txtTableName.Text + "Service.Core" + DateTime.Now.ToString("_MM_dd_yyyy_HH_mm_ss") + ".cs";
 
             //string destinationFileServiceCore = @"C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\BackupFiles\\" + txtTableName.Text + DateTime.Now.ToString("MM_dd_yyyy_HH_mm_ss") + ".cs";
 
             // To move a file or folder to a new location:
             System.IO.File.Move(sourceFileServiceCore, destinationFileCore);
 
-
-
             // Add New Files
             CreateFiles();
-
-
-
-
         }
 
         public void CreateFiles()
         {
             string path = txtSelectFolder.Text + "\\" + txtTableName.Text + ".cs";
             string csContent = "";
+            string subStringPath = txtSelectFolder.Text.Remove(txtSelectFolder.Text.Length - 6);
+
 
             // generate basic content for model.cs file
             csContent = GenerateCodeStructureCS(txtTableName.Text, dataGridPropertyFields);
@@ -134,7 +132,10 @@ namespace FitFactoryCodeGeneratorV2
 
 
             // CREATE SERVICE CLASS
-            string fileLocationCore = "C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\Data\\" + txtTableName.Text + "Service.Core.cs";
+            // C:\Users\William\Source\Repos\Fitfactory\Fitfactory\Fitfactory.csproj
+            //string fileLocationCore = "C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\Data\\" + txtTableName.Text + "Service.Core.cs";
+            string fileLocationCore = subStringPath + "Data\\" + txtTableName.Text + "Service.Core.cs";
+
             // generate basic content for .cs file
             csContent = GenerateCodeStructureServiceClass();
             // do somehting that inputs in above file           
@@ -142,7 +143,8 @@ namespace FitFactoryCodeGeneratorV2
 
             if (!checkCore.Checked)
             {
-                string fileLocation = "C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\Data\\" + txtTableName.Text + "Service.cs";
+                //string fileLocation = "C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\Data\\" + txtTableName.Text + "Service.cs";
+                string fileLocation = subStringPath + "Data\\" + txtTableName.Text + "Service.cs";
                 csContent = "";
                 StreamWriterCreate(fileLocation, csContent);
             }
