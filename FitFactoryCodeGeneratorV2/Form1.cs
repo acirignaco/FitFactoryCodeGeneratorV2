@@ -1,3 +1,5 @@
+using System.Data;
+
 namespace FitFactoryCodeGeneratorV2
 {
     public partial class Form1 : Form
@@ -71,14 +73,14 @@ namespace FitFactoryCodeGeneratorV2
 
         private void btnGenerate_Click(object sender, EventArgs e, DataGridView dataGridPropertyFields)
         {
-            string path = txtSelectFolder.Text + "\\" + txtTableName.Text + ".cs";
+            string path = txtSelectFolder.Text + "\\Models\\" + txtTableName.Text + ".cs";
 
             if (File.Exists(path))
             {
                 DialogResult dialogResult = MessageBox.Show("Do you wish to overwrite this file?", "Overwrite", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    OverrideFiles(path);
+                    OverrideFiles(txtSelectFolder.Text);
                 }
                 else if (dialogResult == DialogResult.No)
                 {
@@ -94,19 +96,19 @@ namespace FitFactoryCodeGeneratorV2
 
         public void OverrideFiles(string sourceFile)
         {
-            string subStringPath = txtSelectFolder.Text.Remove(txtSelectFolder.Text.Length - 6);
+            //string subStringPath = txtSelectFolder.Text.Remove(txtSelectFolder.Text.Length - 6);
 
             // MessageBox.Show("Override both files!");
             // Move Model class file to BackupFolder
             //string destinationFile = @"C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\BackupFiles\\" + txtTableName.Text + DateTime.Now.ToString("_MM_dd_yyyy_HH_mm_ss") + ".cs";
-            string destinationFile = subStringPath + "BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss_") + txtTableName.Text + ".cs";
+            string destinationFile = txtSelectFolder.Text + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss_") + txtTableName.Text + ".bak";
 
             // To move a file or folder to a new location:
-            System.IO.File.Move(sourceFile, destinationFile);
+            System.IO.File.Move(sourceFile + "\\Models\\" + txtTableName.Text + ".cs", destinationFile);
 
             // Move Model class file to BackupFolder
-            string sourceFileServiceCore = subStringPath + "Data\\" + txtTableName.Text + "Service.Core.cs";
-            string destinationFileCore = subStringPath + "BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss_") + txtTableName.Text + "Service.Core" + ".cs";
+            string sourceFileServiceCore = txtSelectFolder.Text + "\\Data\\" + txtTableName.Text + "Service.Core.cs";
+            string destinationFileCore = txtSelectFolder.Text + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss_") + txtTableName.Text + "Service.Core" + ".bak";
 
             //string destinationFileServiceCore = @"C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\BackupFiles\\" + txtTableName.Text + DateTime.Now.ToString("MM_dd_yyyy_HH_mm_ss") + ".cs";
 
@@ -119,9 +121,9 @@ namespace FitFactoryCodeGeneratorV2
 
         public void CreateFiles()
         {
-            string path = txtSelectFolder.Text + "\\" + txtTableName.Text + ".cs";
+            string path = txtSelectFolder.Text + "\\Models\\" + txtTableName.Text + ".cs";
             string csContent = "";
-            string subStringPath = txtSelectFolder.Text.Remove(txtSelectFolder.Text.Length - 6);
+            //string subStringPath = txtSelectFolder.Text.Remove(txtSelectFolder.Text.Length - 6);
 
 
             // generate basic content for model.cs file
@@ -133,20 +135,21 @@ namespace FitFactoryCodeGeneratorV2
 
             // CREATE SERVICE CLASS
             // C:\Users\William\Source\Repos\Fitfactory\Fitfactory\Fitfactory.csproj
-            //string fileLocationCore = "C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\Data\\" + txtTableName.Text + "Service.Core.cs";
-            string fileLocationCore = subStringPath + "Data\\" + txtTableName.Text + "Service.Core.cs";
-
-            // generate basic content for .cs file
-            csContent = GenerateCodeStructureServiceClass();
-            // do somehting that inputs in above file           
-            StreamWriterCreate(fileLocationCore, csContent);
+            //string fileLocation = "C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\Data\\" + txtTableName.Text + "Service.cs";
+            string fileLocation = txtSelectFolder.Text + "\\Data\\" + txtTableName.Text + "Service.Core.cs";
+            csContent = GenerateCodeStructureCoreServiceClass();
+            StreamWriterCreate(fileLocation, csContent);
 
             if (!checkCore.Checked)
             {
-                //string fileLocation = "C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\Data\\" + txtTableName.Text + "Service.cs";
-                string fileLocation = subStringPath + "Data\\" + txtTableName.Text + "Service.cs";
-                csContent = "";
-                StreamWriterCreate(fileLocation, csContent);
+                //string fileLocationCore = "C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\Data\\" + txtTableName.Text + "Service.Core.cs";
+                string fileLocationCore = txtSelectFolder.Text + "\\Data\\" + txtTableName.Text + "Service.cs";
+                // generate basic content for .cs file
+                csContent = GenerateCodeStructureServiceClass();
+                // do somehting that inputs in above file           
+                StreamWriterCreate(fileLocationCore, csContent);
+
+
             }
 
             ClearFields();
@@ -169,7 +172,7 @@ namespace FitFactoryCodeGeneratorV2
         {
             string codeStructure = "";
             string imports = "using System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Text;\nusing System.Threading.Tasks;\nusing System.ComponentModel.DataAnnotations;\n";
-            string namespaceAndClass = $"\nnamespace FitFactoryCodeGeneratorV2\n{{\n{tab}public class {char.ToUpper(filename[0]) + filename.Substring(1)} \n{tab}{{\n";
+            string namespaceAndClass = $"\nnamespace Fitfactory.Models\n{{\n{tab}public class {char.ToUpper(filename[0]) + filename.Substring(1)} \n{tab}{{\n";
 
             codeStructure = imports + namespaceAndClass;
 
@@ -204,10 +207,10 @@ namespace FitFactoryCodeGeneratorV2
         }
 
 
-        public string GenerateCodeStructureServiceClass()
+        public string GenerateCodeStructureCoreServiceClass()
         {
             string codeStructure = "";
-            codeStructure += $"using Fitfactory.DataViews;\nusing Fitfactory.Helpers;\nusing Fitfactory.Models;\nusing Microsoft.EntityFrameworkCore;\nusing System.Linq.Dynamic.Core;\n\nnamespace Fitfactory.Data\n{{\n{tab}public class {txtTableName.Text}Service\n{tab}{{\n{dtab}private readonly AppDbContext _appDbContext;";
+            codeStructure += $"using Fitfactory.DataViews;\nusing Fitfactory.Helpers;\nusing Fitfactory.Models;\nusing Microsoft.EntityFrameworkCore;\nusing System.Linq.Dynamic.Core;\n\nnamespace Fitfactory.Data\n{{\n{tab}public partial class {txtTableName.Text}Service\n{tab}{{\n{dtab}private readonly AppDbContext _appDbContext;";
 
 
             codeStructure += $"\n\n{dtab}public {txtTableName.Text}Service(AppDbContext appDbContext)\n{dtab}{{\n{tab}{dtab}_appDbContext = appDbContext; \n{dtab}}}";
@@ -231,5 +234,23 @@ namespace FitFactoryCodeGeneratorV2
             return codeStructure;
         }
 
+        public string GenerateCodeStructureServiceClass()
+        {
+            string codeStructure;
+            codeStructure = $"using Fitfactory.DataViews;\nusing Fitfactory.Helpers;\nusing Fitfactory.Models;\nusing System.Linq.Dynamic.Core;\n\n";
+            codeStructure += $"namespace Fitfactory.Data\n";
+            codeStructure += $"{{\n";
+            codeStructure += $"    public partial class {txtTableName.Text}Service\n";
+            codeStructure += $"    {{\n\n";
+            codeStructure += $"    }}\n";
+            codeStructure += $"}}";
+
+            return codeStructure;
+        }
+
+        private void dataGridPropertyFields_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
     }
 }
