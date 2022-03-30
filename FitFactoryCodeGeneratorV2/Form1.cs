@@ -99,14 +99,14 @@ namespace FitFactoryCodeGeneratorV2
             // MessageBox.Show("Override both files!");
             // Move Model class file to BackupFolder
             //string destinationFile = @"C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\BackupFiles\\" + txtTableName.Text + DateTime.Now.ToString("_MM_dd_yyyy_HH_mm_ss") + ".cs";
-            string destinationFile = subStringPath + "BackupFiles\\" + txtTableName.Text + DateTime.Now.ToString("_MM_dd_yyyy_HH_mm_ss") + ".cs";
+            string destinationFile = subStringPath + "BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss_") + txtTableName.Text + ".cs";
 
             // To move a file or folder to a new location:
             System.IO.File.Move(sourceFile, destinationFile);
 
             // Move Model class file to BackupFolder
             string sourceFileServiceCore = subStringPath + "Data\\" + txtTableName.Text + "Service.Core.cs";
-            string destinationFileCore = subStringPath + "BackupFiles\\" + txtTableName.Text + "Service.Core" + DateTime.Now.ToString("_MM_dd_yyyy_HH_mm_ss") + ".cs";
+            string destinationFileCore = subStringPath + "BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss_") + txtTableName.Text + "Service.Core" + ".cs";
 
             //string destinationFileServiceCore = @"C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\BackupFiles\\" + txtTableName.Text + DateTime.Now.ToString("MM_dd_yyyy_HH_mm_ss") + ".cs";
 
