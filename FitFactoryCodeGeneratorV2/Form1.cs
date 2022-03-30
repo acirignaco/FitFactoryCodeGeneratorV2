@@ -214,6 +214,7 @@ namespace FitFactoryCodeGeneratorV2
 
 
             codeStructure += $"\n\n{dtab}public {txtTableName.Text}Service(AppDbContext appDbContext)\n{dtab}{{\n{tab}{dtab}_appDbContext = appDbContext; \n{dtab}}}";
+            codeStructure += "\n        #region \"CRUD\"";
             codeStructure += $"\n\n{dtab}public {txtTableName.Text}? GetById(int Id)\n{dtab}{{\n{tab}{dtab}return _appDbContext.{txtPluralName.Text}.FirstOrDefault(c => c.Id == Id);\n{dtab}}}";
             codeStructure += $"\n\n{dtab}public List<{txtTableName.Text}ListItem> GetList(int pageIndex = 0, int pageSize = 0, string orderBy = \"\", string filterQuery = \"\")\n{dtab}{{\n{tab}{dtab}IQueryable<{txtTableName.Text}ListItem> dataList; \n{tab}{dtab}int count;\n{tab}{dtab}if (string.IsNullOrEmpty(orderBy) && string.IsNullOrEmpty(filterQuery))\n{tab}{dtab}{{\n{dtab}{dtab}dataList = _appDbContext.{txtPluralName.Text}List.AsQueryable();\n{dtab}{dtab}count = dataList.Count();\n{tab}{dtab}}}\n{tab}{dtab}else if (string.IsNullOrEmpty(orderBy) && !string.IsNullOrEmpty(filterQuery))\n{tab}{dtab}{{\n{dtab}{dtab}dataList = _appDbContext.{txtPluralName.Text}List.Where(filterQuery).AsQueryable();\n{dtab}{dtab}count = dataList.Count();\n{tab}{dtab}}}\n{tab}{dtab}else if (string.IsNullOrEmpty(filterQuery) && !string.IsNullOrEmpty(orderBy))\n{tab}{dtab}{{\n{dtab}{dtab}dataList = _appDbContext.{txtPluralName.Text}List.OrderBy(orderBy).AsQueryable();\n{dtab}{dtab}count = dataList.Count();\n{tab}{dtab}}}\n{tab}{dtab}else {{\n{dtab}{dtab}dataList = _appDbContext.{ txtPluralName.Text}List.OrderBy(orderBy).Where(filterQuery).AsQueryable();\n{dtab}{dtab}count = dataList.Count();\n{tab}{dtab}}}\n\n{tab}{dtab}if (pageSize > 0)\n{tab}{dtab}{{\n{dtab}{dtab}var pagedDataList = dataList.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();\n{dtab}{dtab}return (new PaginatedList<{txtTableName.Text}ListItem> (pagedDataList, count, pageIndex, pageSize).ToList());\n{tab}{dtab}}}\n{tab}{dtab}else\n{tab}{dtab}{{\n{dtab}{dtab}return dataList.ToList();\n{dtab}{dtab}\n{tab}{dtab}}}\n{dtab}}}";
             codeStructure += $"\n\n{dtab}public Task<{txtTableName.Text}> Add({txtTableName.Text} dataObject)\n{dtab}{{\n{tab}{dtab}var addedObject = _appDbContext.{txtPluralName.Text}.Add(dataObject);\n{tab}{dtab}_appDbContext.SaveChanges();\n{tab}{dtab}return Task.FromResult(addedObject.Entity);\n{dtab}}}";
@@ -230,6 +231,9 @@ namespace FitFactoryCodeGeneratorV2
             }
 
             codeStructure += $"\n\n{dtab}{dtab}_appDbContext.SaveChanges();\n{dtab}{dtab}return dataObject;\n{tab}{dtab}}}\n{tab}{dtab}return null;\n{dtab}}}";
+
+            codeStructure += "\n        #endregion";
+
             codeStructure += "\n" + tab + "}" + "\n}";
             return codeStructure;
         }
