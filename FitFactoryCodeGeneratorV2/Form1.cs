@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace FitFactoryCodeGeneratorV2
 {
     public partial class Form1 : Form
@@ -231,5 +233,20 @@ namespace FitFactoryCodeGeneratorV2
             return codeStructure;
         }
 
+        private void dataGridPropertyFields_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            DataGridViewComboBoxCell cmbbox = new DataGridViewComboBoxCell();
+            cmbbox.Items.Add("string");
+            cmbbox.Items.Add("int");
+            cmbbox.Items.Add("bool");
+            cmbbox.Items.Add("decimal");
+            cmbbox.Items.Add("float");
+            ((DataGridViewComboBoxColumn)dataGridPropertyFields.Columns["Type"]).DataSource = cmbbox.Items;
+        }
     }
 }

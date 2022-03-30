@@ -43,7 +43,7 @@
             this.btnSelectFolder = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.PropertyName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Type = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.Length = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Required = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.IsKey = new System.Windows.Forms.DataGridViewCheckBoxColumn();
@@ -84,6 +84,7 @@
             this.dataGridPropertyFields.RowTemplate.Height = 25;
             this.dataGridPropertyFields.Size = new System.Drawing.Size(623, 200);
             this.dataGridPropertyFields.TabIndex = 6;
+            this.dataGridPropertyFields.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridPropertyFields_CellContentClick);
             // 
             // btnClear
             // 
@@ -212,10 +213,12 @@
             // 
             // Type
             // 
-            this.Type.HeaderText = "Type";
+            this.Type.DataPropertyName = "DataType";
+            this.Type.HeaderText = "Data Type";
             this.Type.MinimumWidth = 6;
             this.Type.Name = "Type";
             this.Type.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Type.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             this.Type.Width = 115;
             // 
             // Length
@@ -264,6 +267,7 @@
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "FitFactory Code Generator";
+            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridPropertyFields)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -287,7 +291,7 @@
         private Button btnSelectFolder;
         private Label label5;
         private DataGridViewTextBoxColumn PropertyName;
-        private DataGridViewTextBoxColumn Type;
+        private DataGridViewComboBoxColumn Type;
         private DataGridViewTextBoxColumn Length;
         private DataGridViewCheckBoxColumn Required;
         private DataGridViewCheckBoxColumn IsKey;
