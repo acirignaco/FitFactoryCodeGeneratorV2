@@ -5,6 +5,11 @@
       "ProjectGuid": "9d1cc8f2-074d-4444-8c74-88ef55a3d2a5",
       "DisplayName": "FitFactoryCodeGeneratorV2",
       "ColorIndex": 0
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Miscellaneous Files",
+      "ColorIndex": -1
     }
   },
   "NextColorIndex": 1

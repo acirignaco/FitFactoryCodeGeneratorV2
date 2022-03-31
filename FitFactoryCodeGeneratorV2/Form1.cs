@@ -13,6 +13,7 @@ namespace FitFactoryCodeGeneratorV2
             InitializeComponent();
         }
 
+        //once clicked allows user to browse to select their project directory
         private void btnSelectFolder_Click(object sender, EventArgs e)
         {
             folderBrowserDialog1.ShowDialog();
@@ -20,6 +21,7 @@ namespace FitFactoryCodeGeneratorV2
             txtSelectFolder.Text = folderName;
         }
 
+        //once clicked, calls the clearfields method and clears all the fields
         private void btnClear_Click(object sender, EventArgs e)
         {
             ClearFields();
@@ -35,6 +37,7 @@ namespace FitFactoryCodeGeneratorV2
             txtPluralName.Text = txtTableName.Text + "s";
         }
 
+        //method to clear fields in the form when called 
         public void ClearFields()
         {
             txtSelectFolder.Clear();
@@ -125,7 +128,6 @@ namespace FitFactoryCodeGeneratorV2
             string csContent = "";
             //string subStringPath = txtSelectFolder.Text.Remove(txtSelectFolder.Text.Length - 6);
 
-
             // generate basic content for model.cs file
             csContent = GenerateCodeStructureCS(txtTableName.Text, dataGridPropertyFields);
             // do somehting that inputs in above file           
@@ -137,19 +139,22 @@ namespace FitFactoryCodeGeneratorV2
             // C:\Users\William\Source\Repos\Fitfactory\Fitfactory\Fitfactory.csproj
             //string fileLocation = "C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\Data\\" + txtTableName.Text + "Service.cs";
             string fileLocation = txtSelectFolder.Text + "\\Data\\" + txtTableName.Text + "Service.Core.cs";
+
             csContent = GenerateCodeStructureCoreServiceClass();
             StreamWriterCreate(fileLocation, csContent);
-
+            
             if (!checkCore.Checked)
             {
                 //string fileLocationCore = "C:\\Users\\William\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\Test\\Data\\" + txtTableName.Text + "Service.Core.cs";
                 string fileLocationCore = txtSelectFolder.Text + "\\Data\\" + txtTableName.Text + "Service.cs";
-                // generate basic content for .cs file
-                csContent = GenerateCodeStructureServiceClass();
-                // do somehting that inputs in above file           
-                StreamWriterCreate(fileLocationCore, csContent);
 
-
+                if (!File.Exists(fileLocationCore))
+                {
+                    // generate basic content for .cs file
+                    csContent = GenerateCodeStructureServiceClass();
+                    // do somehting that inputs in above file           
+                    StreamWriterCreate(fileLocationCore, csContent);
+                }
             }
 
             ClearFields();
@@ -206,7 +211,6 @@ namespace FitFactoryCodeGeneratorV2
             return codeStructure;
         }
 
-
         public string GenerateCodeStructureCoreServiceClass()
         {
             string codeStructure = "";
@@ -252,13 +256,9 @@ namespace FitFactoryCodeGeneratorV2
             return codeStructure;
         }
 
-        private void dataGridPropertyFields_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
         private void Form1_Load(object sender, EventArgs e)
         {
+            //When the form is loaded, adds datatypes to the combobox in the datagrid
             DataGridViewComboBoxCell cmbbox = new DataGridViewComboBoxCell();
             cmbbox.Items.Add("string");
             cmbbox.Items.Add("int");
