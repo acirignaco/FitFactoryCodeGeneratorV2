@@ -156,7 +156,6 @@ namespace FitFactoryCodeGeneratorV2
                     StreamWriterCreate(fileLocationCore, csContent);
                 }
             }
-
             ClearFields();
         }
 
