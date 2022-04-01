@@ -83,14 +83,14 @@ namespace FitFactoryCodeGeneratorV2
             string appDbContextPath = txtSelectFolder.Text + "\\Data\\" + "AppDbContext.cs";
 
             List<string> paths = new List<string>();
-            paths.Add(modelsPath);
-            paths.Add(corePath);
-            if (!checkCore.Checked)
-            {
-                paths.Add(servicePath);
-            }
-            paths.Add(dataviewPath);
-            paths.Add(appDbContextPath);
+            //paths.Add(modelsPath);
+            //paths.Add(corePath);
+            //if (!checkCore.Checked)
+            //{
+            //    paths.Add(servicePath);
+            //}
+            //paths.Add(dataviewPath);
+            //paths.Add(appDbContextPath);
 
             foreach (var path in paths)
             {
@@ -336,17 +336,22 @@ namespace FitFactoryCodeGeneratorV2
             cmd.CommandText = GenerateTableSQL();
             cmd.ExecuteNonQuery();
 
-            cmd.CommandText = GenerateTableSQL();
+            cmd.CommandText = GenerateViewSQL();
             cmd.ExecuteNonQuery();
 
-            MessageBox.Show("Database Table Created!");
+            MessageBox.Show("Database Table and View Created!");
+        }
+
+        private void CheckIfTableExists()
+        {
+
         }
 
 
         public string GenerateTableSQL()
         {
             string sqlStatement;
-            sqlStatement = $"CREATE TABLE {txtTableName.Text}";
+            sqlStatement = $"CREATE TABLE {txtPluralName.Text}";
             sqlStatement += "(";
 
             foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
@@ -363,7 +368,7 @@ namespace FitFactoryCodeGeneratorV2
                     }
                     if ((row.Cells["IsKey"].Value != null) && (bool)row.Cells["IsKey"].Value == true)
                     {
-                        sqlStatement += row.Cells["PropertyName"].Value + " SERIAL PRIMARY KEY, ";
+                        sqlStatement += row.Cells["PropertyName"].Value + " SERIAL PRIMARY KEY,";
                     }
                     else if (row.Cells["Type"].Value.Equals("string?"))
                     {
@@ -394,14 +399,20 @@ namespace FitFactoryCodeGeneratorV2
             string sqlStatement;
             sqlStatement = $"CREATE VIEW {txtTableName.Text} AS ";
             sqlStatement += "SELECT ";
-
+            
             foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
             {
-                sqlStatement += $"{txtPluralName.Text}" + "." + $"{row.Cells[0].Value}" + ",";
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+                }
+                else
+                { 
+                    sqlStatement += $"{txtPluralName.Text}" + "." + $"{row.Cells[0].Value}" + ",";
+                }
             }
 
             sqlStatement = sqlStatement.Remove(sqlStatement.Length - 1, 1);
-            sqlStatement += $"FROM \"{txtPluralName.Text}\"";
+            sqlStatement += $" FROM {txtPluralName.Text}";
             sqlStatement += ";";
             return sqlStatement;
         }
@@ -416,7 +427,6 @@ namespace FitFactoryCodeGeneratorV2
             cmbbox.Items.Add("int");
             cmbbox.Items.Add("bool");
             cmbbox.Items.Add("decimal");
-            cmbbox.Items.Add("float");
             ((DataGridViewComboBoxColumn)dataGridPropertyFields.Columns["Type"]).DataSource = cmbbox.Items;
         }
 

@@ -6,11 +6,15 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>code_115247.ico</ApplicationIcon>
+    <ApplicationIcon>downloadcomputer_117975.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="code_115247.ico" />
+    <Content Include="downloadcomputer_117975.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql" Version="6.0.3" />
   </ItemGroup>
 
 </Project>
