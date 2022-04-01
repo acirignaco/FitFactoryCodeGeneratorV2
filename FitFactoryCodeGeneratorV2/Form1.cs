@@ -336,6 +336,9 @@ namespace FitFactoryCodeGeneratorV2
             cmd.CommandText = GenerateTableSQL();
             cmd.ExecuteNonQuery();
 
+            cmd.CommandText = GenerateTableSQL();
+            cmd.ExecuteNonQuery();
+
             MessageBox.Show("Database Table Created!");
         }
 
@@ -383,6 +386,23 @@ namespace FitFactoryCodeGeneratorV2
             sqlStatement = sqlStatement.Remove(sqlStatement.Length - 1, 1);
             sqlStatement += ");";
 
+            return sqlStatement;
+        }
+
+        public string GenerateViewSQL()
+        {
+            string sqlStatement;
+            sqlStatement = $"CREATE VIEW {txtTableName.Text} AS ";
+            sqlStatement += "SELECT ";
+
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+                sqlStatement += $"{txtPluralName.Text}" + "." + $"{row.Cells[0].Value}" + ",";
+            }
+
+            sqlStatement = sqlStatement.Remove(sqlStatement.Length - 1, 1);
+            sqlStatement += $"FROM \"{txtPluralName.Text}\"";
+            sqlStatement += ";";
             return sqlStatement;
         }
 
