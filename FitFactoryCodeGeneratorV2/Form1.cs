@@ -83,14 +83,14 @@ namespace FitFactoryCodeGeneratorV2
             string appDbContextPath = txtSelectFolder.Text + "\\Data\\" + "AppDbContext.cs";
 
             List<string> paths = new List<string>();
-            //paths.Add(modelsPath);
-            //paths.Add(corePath);
-            //if (!checkCore.Checked)
-            //{
-            //    paths.Add(servicePath);
-            //}
-            //paths.Add(dataviewPath);
-            //paths.Add(appDbContextPath);
+            paths.Add(modelsPath);
+            paths.Add(corePath);
+            if (!checkCore.Checked)
+            {
+                paths.Add(servicePath);
+            }
+            paths.Add(dataviewPath);
+            paths.Add(appDbContextPath);
 
             foreach (var path in paths)
             {
@@ -115,6 +115,8 @@ namespace FitFactoryCodeGeneratorV2
             GeneratePosgresTable();
             ClearFields();
         }
+
+        #region "CREATE/OVERRIDE"
 
         /// <summary>
         /// Create a backup and then create new file 
@@ -189,6 +191,8 @@ namespace FitFactoryCodeGeneratorV2
             MessageBox.Show("Successfully created file in " + sourceFile);
         }
 
+        #endregion
+
         #region "GENERATED CODE METHODS"
 
         public string GenerateCodeModel(string filename, DataGridView dataGridView)
@@ -231,16 +235,21 @@ namespace FitFactoryCodeGeneratorV2
 
         public string GenerateCodeCoreClass()
         {
+            List<string>? dropdownListValues = GetDropdownListValue();
             string codeStructure = "";
             codeStructure += $"using Fitfactory.DataViews;\nusing Fitfactory.Helpers;\nusing Fitfactory.Models;\nusing Microsoft.EntityFrameworkCore;\nusing System.Linq.Dynamic.Core;\n\nnamespace Fitfactory.Data\n{{\n{tab}public partial class {txtTableName.Text}Service\n{tab}{{\n{dtab}private readonly AppDbContext _appDbContext;";
 
 
             codeStructure += $"\n\n{dtab}public {txtTableName.Text}Service(AppDbContext appDbContext)\n{dtab}{{\n{tab}{dtab}_appDbContext = appDbContext; \n{dtab}}}";
             codeStructure += "\n\n        #region \"CRUD\"";
+
+            codeStructure += $"\n\n{dtab}public Dictionary<int, {dropdownListValues[1]}> GetDropList()\n{dtab}{{\n{tab + dtab}return _appDbContext.{txtPluralName.Text}.OrderBy(a => a.Id).ToDictionary(c => c.Id, c => c.{dropdownListValues[0]});\n{dtab}}}";
             codeStructure += $"\n\n{dtab}public {txtTableName.Text}? GetById(int Id)\n{dtab}{{\n{tab}{dtab}return _appDbContext.{txtPluralName.Text}.FirstOrDefault(c => c.Id == Id);\n{dtab}}}";
             codeStructure += $"\n\n{dtab}public List<{txtTableName.Text}ListItem> GetList(int pageIndex = 0, int pageSize = 0, string orderBy = \"\", string filterQuery = \"\")\n{dtab}{{\n{tab}{dtab}IQueryable<{txtTableName.Text}ListItem> dataList; \n{tab}{dtab}int count;\n{tab}{dtab}if (string.IsNullOrEmpty(orderBy) && string.IsNullOrEmpty(filterQuery))\n{tab}{dtab}{{\n{dtab}{dtab}dataList = _appDbContext.{txtPluralName.Text}List.AsQueryable();\n{dtab}{dtab}count = dataList.Count();\n{tab}{dtab}}}\n{tab}{dtab}else if (string.IsNullOrEmpty(orderBy) && !string.IsNullOrEmpty(filterQuery))\n{tab}{dtab}{{\n{dtab}{dtab}dataList = _appDbContext.{txtPluralName.Text}List.Where(filterQuery).AsQueryable();\n{dtab}{dtab}count = dataList.Count();\n{tab}{dtab}}}\n{tab}{dtab}else if (string.IsNullOrEmpty(filterQuery) && !string.IsNullOrEmpty(orderBy))\n{tab}{dtab}{{\n{dtab}{dtab}dataList = _appDbContext.{txtPluralName.Text}List.OrderBy(orderBy).AsQueryable();\n{dtab}{dtab}count = dataList.Count();\n{tab}{dtab}}}\n{tab}{dtab}else {{\n{dtab}{dtab}dataList = _appDbContext.{ txtPluralName.Text}List.OrderBy(orderBy).Where(filterQuery).AsQueryable();\n{dtab}{dtab}count = dataList.Count();\n{tab}{dtab}}}\n\n{tab}{dtab}if (pageSize > 0)\n{tab}{dtab}{{\n{dtab}{dtab}var pagedDataList = dataList.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();\n{dtab}{dtab}return (new PaginatedList<{txtTableName.Text}ListItem> (pagedDataList, count, pageIndex, pageSize).ToList());\n{tab}{dtab}}}\n{tab}{dtab}else\n{tab}{dtab}{{\n{dtab}{dtab}return dataList.ToList();\n{dtab}{dtab}\n{tab}{dtab}}}\n{dtab}}}";
             codeStructure += $"\n\n{dtab}public Task<{txtTableName.Text}> Add({txtTableName.Text} dataObject)\n{dtab}{{\n{tab}{dtab}var addedObject = _appDbContext.{txtPluralName.Text}.Add(dataObject);\n{tab}{dtab}_appDbContext.SaveChanges();\n{tab}{dtab}return Task.FromResult(addedObject.Entity);\n{dtab}}}";
             codeStructure += $"\n\n{dtab}public bool Delete(int Id)\n{dtab}{{\n{tab}{dtab}var dataObject = _appDbContext.{txtPluralName.Text}.FirstOrDefault(e => e.Id == Id);\n{tab}{dtab}if (dataObject == null) return false;\n\n{tab}{dtab}_appDbContext.{ txtPluralName.Text}.Remove(dataObject);\n{tab}{dtab}_appDbContext.SaveChanges();\n{tab}{dtab}return true;\n{dtab}}}";
+
+          
 
 
             codeStructure += $"\n\n{dtab}public {txtTableName.Text}? Update({txtTableName.Text} obj)\n{dtab}{{\n{tab}{dtab}var dataObject = _appDbContext.{txtPluralName.Text}.FirstOrDefault(e => e.Id == obj.Id);\n{tab}{dtab}if (dataObject != null)\n{tab}{dtab}{{";
@@ -257,6 +266,8 @@ namespace FitFactoryCodeGeneratorV2
             codeStructure += "\n        #endregion";
 
             codeStructure += "\n" + tab + "}" + "\n}";
+            codeStructure += GetDropdownListValue();
+
             return codeStructure;
         }
 
@@ -277,10 +288,39 @@ namespace FitFactoryCodeGeneratorV2
         public string GenerateCodeDataViewClass()
         {
             string codeStructure;
-            codeStructure = $"namespace Fitfactory.DataViews\n";
+            codeStructure = "using System.ComponentModel.DataAnnotations;\n";
+            codeStructure += $"namespace Fitfactory.DataViews\n";
             codeStructure += $"{{\n";
             codeStructure += $"    public class {txtTableName.Text}ListItem\n";
             codeStructure += $"    {{\n\n";
+
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+
+                }
+                else
+                {
+                    if ((row.Cells["IsKey"].Value != null) && (bool)row.Cells["IsKey"].Value == true)
+                    {
+                        codeStructure += dtab + "[Key]\n";
+                    }
+                    if ((row.Cells["Required"].Value != null) && (bool)row.Cells["Required"].Value == true)
+                    {
+                        codeStructure += dtab + "[Required]\n";
+                    }
+                    if ((row.Cells["Length"].Value != null) && !row.Cells["Length"].Value.Equals("") && row.Cells["Type"].Value.Equals("string?"))
+                    {
+                        codeStructure += dtab + $"[MaxLength({row.Cells["Length"].Value})]\n";
+                    }
+                    codeStructure += dtab + "public ";
+                    codeStructure += row.Cells["Type"].Value + " ";
+                    codeStructure += row.Cells["PropertyName"].Value + " { get; set; } \n\n";
+                }
+            }
+
+
             codeStructure += $"    }}\n";
             codeStructure += $"}}";
 
@@ -288,7 +328,7 @@ namespace FitFactoryCodeGeneratorV2
         }
 
         /// <summary>
-        /// Code to ammend the AppDbContext with 
+        /// Code to ammend the AppDbContext  
         /// </summary>
         /// <returns></returns>
         public string AmmendAppDbContext()
@@ -319,6 +359,28 @@ namespace FitFactoryCodeGeneratorV2
             return originalAppDbContextContent;
         }
 
+
+        public List<string> GetDropdownListValue()
+        {
+            List<string>? dropdownListValue = new List<string>();
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                { }
+                else
+                {
+                    if ((row.Cells["DropdownIdentifier"].Value != null) && (bool)row.Cells["DropdownIdentifier"].Value == true)
+                    {
+                        dropdownListValue.Add(row.Cells["PropertyName"].Value.ToString());
+                        dropdownListValue.Add(row.Cells["Type"].Value.ToString());
+                    }
+                }
+            }
+
+            return dropdownListValue;
+        }
+
+
         #endregion
 
         #region "GENERATE DATABASE"
@@ -332,26 +394,28 @@ namespace FitFactoryCodeGeneratorV2
 
             using var cmd = new NpgsqlCommand();
             cmd.Connection = con;
-
+            
             cmd.CommandText = GenerateTableSQL();
             cmd.ExecuteNonQuery();
+            MessageBox.Show("Database Table Created! If already existed then it didnt override!");
 
-            cmd.CommandText = GenerateViewSQL();
-            cmd.ExecuteNonQuery();
+            try 
+            {
+                cmd.CommandText = GenerateViewSQL();
+                cmd.ExecuteNonQuery();
+                MessageBox.Show("Database View Created!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("View aready exists!!");
+            }
 
-            MessageBox.Show("Database Table and View Created!");
         }
-
-        private void CheckIfTableExists()
-        {
-
-        }
-
 
         public string GenerateTableSQL()
         {
             string sqlStatement;
-            sqlStatement = $"CREATE TABLE {txtPluralName.Text}";
+            sqlStatement = $"CREATE TABLE IF NOT EXISTS \"{txtPluralName.Text}\"";
             sqlStatement += "(";
 
             foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
@@ -396,8 +460,9 @@ namespace FitFactoryCodeGeneratorV2
 
         public string GenerateViewSQL()
         {
+            string tableName = txtTableName.Text;
             string sqlStatement;
-            sqlStatement = $"CREATE VIEW {txtTableName.Text} AS ";
+            sqlStatement = $"CREATE VIEW \"{txtTableName.Text}List\" AS ";
             sqlStatement += "SELECT ";
             
             foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
@@ -426,7 +491,8 @@ namespace FitFactoryCodeGeneratorV2
             cmbbox.Items.Add("string?");
             cmbbox.Items.Add("int");
             cmbbox.Items.Add("bool");
-            cmbbox.Items.Add("decimal");
+            cmbbox.Items.Add("Decimal");
+
             ((DataGridViewComboBoxColumn)dataGridPropertyFields.Columns["Type"]).DataSource = cmbbox.Items;
         }
 
