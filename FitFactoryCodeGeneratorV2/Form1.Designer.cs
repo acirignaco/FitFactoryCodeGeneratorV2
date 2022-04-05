@@ -31,24 +31,21 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.btnGenerate = new System.Windows.Forms.Button();
             this.dataGridPropertyFields = new System.Windows.Forms.DataGridView();
-            this.btnClear = new System.Windows.Forms.Button();
-            this.checkCore = new System.Windows.Forms.CheckBox();
-            this.txtSelectFolder = new System.Windows.Forms.TextBox();
-            this.txtPluralName = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.txtTableName = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.btnSelectFolder = new System.Windows.Forms.Button();
-            this.label5 = new System.Windows.Forms.Label();
             this.PropertyName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Type = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.Length = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DropdownIdentifier = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.Required = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.IsKey = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.btnClear = new System.Windows.Forms.Button();
+            this.checkCore = new System.Windows.Forms.CheckBox();
+            this.txtPluralName = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txtTableName = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.label5 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridPropertyFields)).BeginInit();
             this.SuspendLayout();
             // 
@@ -85,118 +82,6 @@
             this.dataGridPropertyFields.RowTemplate.Height = 25;
             this.dataGridPropertyFields.Size = new System.Drawing.Size(545, 150);
             this.dataGridPropertyFields.TabIndex = 6;
-            // 
-            // btnClear
-            // 
-            this.btnClear.BackColor = System.Drawing.Color.White;
-            this.btnClear.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnClear.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnClear.Location = new System.Drawing.Point(451, 378);
-            this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(115, 37);
-            this.btnClear.TabIndex = 8;
-            this.btnClear.Text = "Clear";
-            this.btnClear.UseVisualStyleBackColor = false;
-            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
-            // 
-            // checkCore
-            // 
-            this.checkCore.AutoSize = true;
-            this.checkCore.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.checkCore.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.checkCore.Location = new System.Drawing.Point(177, 176);
-            this.checkCore.Name = "checkCore";
-            this.checkCore.Size = new System.Drawing.Size(15, 14);
-            this.checkCore.TabIndex = 5;
-            this.checkCore.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.checkCore.UseVisualStyleBackColor = true;
-            // 
-            // txtSelectFolder
-            // 
-            this.txtSelectFolder.Location = new System.Drawing.Point(20, 32);
-            this.txtSelectFolder.Name = "txtSelectFolder";
-            this.txtSelectFolder.Size = new System.Drawing.Size(447, 23);
-            this.txtSelectFolder.TabIndex = 1;
-            // 
-            // txtPluralName
-            // 
-            this.txtPluralName.Location = new System.Drawing.Point(20, 137);
-            this.txtPluralName.Name = "txtPluralName";
-            this.txtPluralName.Size = new System.Drawing.Size(546, 23);
-            this.txtPluralName.TabIndex = 4;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label1.Location = new System.Drawing.Point(20, 14);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(93, 15);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Project Location";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label2.Location = new System.Drawing.Point(20, 119);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(37, 15);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "Plural";
-            // 
-            // txtTableName
-            // 
-            this.txtTableName.Location = new System.Drawing.Point(20, 86);
-            this.txtTableName.Name = "txtTableName";
-            this.txtTableName.Size = new System.Drawing.Size(546, 23);
-            this.txtTableName.TabIndex = 3;
-            this.txtTableName.TextChanged += new System.EventHandler(this.txtTableName_TextChanged);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label3.Location = new System.Drawing.Point(20, 68);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(70, 15);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "Table Name";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label4.Location = new System.Drawing.Point(20, 204);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(118, 15);
-            this.label4.TabIndex = 0;
-            this.label4.Text = "Enter Data Properties";
-            // 
-            // btnSelectFolder
-            // 
-            this.btnSelectFolder.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnSelectFolder.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSelectFolder.FlatAppearance.BorderColor = System.Drawing.SystemColors.GradientActiveCaption;
-            this.btnSelectFolder.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnSelectFolder.ForeColor = System.Drawing.Color.Black;
-            this.btnSelectFolder.Location = new System.Drawing.Point(472, 31);
-            this.btnSelectFolder.Name = "btnSelectFolder";
-            this.btnSelectFolder.Size = new System.Drawing.Size(94, 23);
-            this.btnSelectFolder.TabIndex = 2;
-            this.btnSelectFolder.Text = "Select...";
-            this.btnSelectFolder.UseVisualStyleBackColor = false;
-            this.btnSelectFolder.Click += new System.EventHandler(this.btnSelectFolder_Click);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label5.Location = new System.Drawing.Point(20, 174);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(129, 15);
-            this.label5.TabIndex = 0;
-            this.label5.Text = "Create Core Class Only?";
             // 
             // PropertyName
             // 
@@ -243,20 +128,97 @@
             this.IsKey.Name = "IsKey";
             this.IsKey.Width = 110;
             // 
+            // btnClear
+            // 
+            this.btnClear.BackColor = System.Drawing.Color.White;
+            this.btnClear.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnClear.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnClear.Location = new System.Drawing.Point(451, 378);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Size = new System.Drawing.Size(115, 37);
+            this.btnClear.TabIndex = 8;
+            this.btnClear.Text = "Clear";
+            this.btnClear.UseVisualStyleBackColor = false;
+            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
+            // 
+            // checkCore
+            // 
+            this.checkCore.AutoSize = true;
+            this.checkCore.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.checkCore.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.checkCore.Location = new System.Drawing.Point(177, 176);
+            this.checkCore.Name = "checkCore";
+            this.checkCore.Size = new System.Drawing.Size(15, 14);
+            this.checkCore.TabIndex = 5;
+            this.checkCore.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.checkCore.UseVisualStyleBackColor = true;
+            // 
+            // txtPluralName
+            // 
+            this.txtPluralName.Location = new System.Drawing.Point(20, 137);
+            this.txtPluralName.Name = "txtPluralName";
+            this.txtPluralName.Size = new System.Drawing.Size(546, 23);
+            this.txtPluralName.TabIndex = 4;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label2.Location = new System.Drawing.Point(20, 119);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(37, 15);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "Plural";
+            // 
+            // txtTableName
+            // 
+            this.txtTableName.Location = new System.Drawing.Point(20, 86);
+            this.txtTableName.Name = "txtTableName";
+            this.txtTableName.Size = new System.Drawing.Size(546, 23);
+            this.txtTableName.TabIndex = 3;
+            this.txtTableName.TextChanged += new System.EventHandler(this.txtTableName_TextChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label3.Location = new System.Drawing.Point(20, 68);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(70, 15);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "Table Name";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label4.Location = new System.Drawing.Point(20, 204);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(118, 15);
+            this.label4.TabIndex = 0;
+            this.label4.Text = "Enter Data Properties";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label5.Location = new System.Drawing.Point(20, 174);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(129, 15);
+            this.label5.TabIndex = 0;
+            this.label5.Text = "Create Core Class Only?";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(590, 426);
             this.Controls.Add(this.label5);
-            this.Controls.Add(this.btnSelectFolder);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.txtTableName);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.txtPluralName);
-            this.Controls.Add(this.txtSelectFolder);
             this.Controls.Add(this.checkCore);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.dataGridPropertyFields);
@@ -279,15 +241,12 @@
         private DataGridView dataGridPropertyFields;
         private Button btnClear;
         private CheckBox checkCore;
-        private TextBox txtSelectFolder;
         private TextBox txtPluralName;
-        private Label label1;
         private Label label2;
         private TextBox txtTableName;
         private Label label3;
         private Label label4;
         private FolderBrowserDialog folderBrowserDialog1;
-        private Button btnSelectFolder;
         private Label label5;
         private DataGridViewTextBoxColumn PropertyName;
         private DataGridViewComboBoxColumn Type;

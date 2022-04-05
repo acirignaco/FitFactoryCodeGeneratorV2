@@ -7,36 +7,15 @@ namespace FitFactoryCodeGeneratorV2
     {
         string tab = "    ";
         string dtab = "        ";
+        string folderLocation = "";
 
         public Form1()
         {
             InitializeComponent();
         }
-
-        //once clicked allows user to browse to select their project directory
-        private void btnSelectFolder_Click(object sender, EventArgs e)
-        {
-            folderBrowserDialog1.ShowDialog();
-            string folderName = folderBrowserDialog1.SelectedPath;
-            txtSelectFolder.Text = folderName;
-        }
-
-        //once clicked, calls the clearfields method and clears all the fields
-        private void btnClear_Click(object sender, EventArgs e)
-        {
-            ClearFields();
-        }
-
-        private void btnGenerate_Click(object sender, EventArgs e)
-        {
-            bool successfulValidation = FormValidation();
-            if (successfulValidation)
-                btnGenerate_Click(sender, e, dataGridPropertyFields);
-        }
-
         public bool FormValidation()
         {
-            if (txtSelectFolder.Text == string.Empty)
+            if (folderLocation == string.Empty)
             {
                 MessageBox.Show("Please enter a folder location for Model!");
                 return false;
@@ -54,13 +33,27 @@ namespace FitFactoryCodeGeneratorV2
             return true;
         }
 
+        #region "BUTTON CLICKS"
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            ClearFields();
+        }
+
+        private void btnGenerate_Click(object sender, EventArgs e)
+        {
+            bool successfulValidation = FormValidation();
+            if (successfulValidation)
+                btnGenerate_Click(sender, e, dataGridPropertyFields);
+        }
+
         private void btnGenerate_Click(object sender, EventArgs e, DataGridView dataGridPropertyFields)
         {
-            string modelsPath = txtSelectFolder.Text + "\\Models\\" + txtTableName.Text + ".cs";
-            string corePath = txtSelectFolder.Text + "\\Data\\" + txtTableName.Text + "Service.Core.cs";
-            string servicePath = txtSelectFolder.Text + "\\Data\\" + txtTableName.Text + "Service.cs";
-            string dataviewPath = txtSelectFolder.Text + "\\DataViews\\" + txtTableName.Text + "ListItem.cs";
-            string appDbContextPath = txtSelectFolder.Text + "\\Data\\" + "AppDbContext.cs";
+            string modelsPath = folderLocation + "\\Models\\" + txtTableName.Text + ".cs";
+            string corePath = folderLocation + "\\Data\\" + txtTableName.Text + "Service.Core.cs";
+            string servicePath = folderLocation + "\\Data\\" + txtTableName.Text + "Service.cs";
+            string dataviewPath = folderLocation + "\\DataViews\\" + txtTableName.Text + "ListItem.cs";
+            string appDbContextPath = folderLocation + "\\Data\\" + "AppDbContext.cs";
 
             List<string> paths = new List<string>();
             paths.Add(modelsPath);
@@ -96,6 +89,8 @@ namespace FitFactoryCodeGeneratorV2
             ClearFields();
         }
 
+        #endregion
+
         #region "CREATE/OVERRIDE"
 
         /// <summary>
@@ -109,23 +104,23 @@ namespace FitFactoryCodeGeneratorV2
             // Move Model class file to BackupFolder
             if (sourceFile.Contains("Models"))
             {
-                destinationFile = txtSelectFolder.Text + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + txtTableName.Text + ".bak";
+                destinationFile = folderLocation + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + txtTableName.Text + ".bak";
             }
             else if (sourceFile.Contains("Service.Core.cs"))
             {
-                destinationFile = txtSelectFolder.Text + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + txtTableName.Text + "Service.Core.bak";
+                destinationFile = folderLocation + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + txtTableName.Text + "Service.Core.bak";
             }
             else if (sourceFile.Contains("Service.cs"))
             {
-                destinationFile = txtSelectFolder.Text + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + txtTableName.Text + "Service.bak";
+                destinationFile = folderLocation + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + txtTableName.Text + "Service.bak";
             }
             else if (sourceFile.Contains("DataViews"))
             {
-                destinationFile = txtSelectFolder.Text + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + txtTableName.Text + "ListItem.bak";
+                destinationFile = folderLocation + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + txtTableName.Text + "ListItem.bak";
             }
             else if (sourceFile.Contains("AppDbContext.cs"))
             {
-                destinationFile = txtSelectFolder.Text + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + "AppDbContext.cs.bak";
+                destinationFile = folderLocation + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + "AppDbContext.cs.bak";
             }
 
             // Todo - might have an issue if sourceFile doesn't exist
@@ -347,7 +342,7 @@ namespace FitFactoryCodeGeneratorV2
         public string AmmendAppDbContext()
         {
             // get current context of AppDbContext.cs 
-            string originalAppDbContextContentLocation = txtSelectFolder.Text + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + "AppDbContext.cs.bak";
+            string originalAppDbContextContentLocation = folderLocation + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + "AppDbContext.cs.bak";
             string originalAppDbContextContent = File.ReadAllText(originalAppDbContextContentLocation);
 
             if (!originalAppDbContextContent.Contains($"public DbSet<{txtTableName.Text}> {txtPluralName.Text}"))
@@ -392,6 +387,64 @@ namespace FitFactoryCodeGeneratorV2
 
             return dropdownListValue;
         }
+
+        #endregion
+
+        #region "CODE METHODS FRONTEND"
+        public string GenerateListPage()
+        {
+            string codeStructure = "";
+            string imports = "using System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Text;\nusing System.Threading.Tasks;\nusing System.ComponentModel.DataAnnotations;\n";
+            string namespaceAndClass = $"\nnamespace Fitfactory.Models\n{{\n{tab}public class {char.ToUpper(filename[0]) + filename.Substring(1)} \n{tab}{{\n";
+
+            codeStructure = imports + namespaceAndClass;
+
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+
+                }
+                else
+                {
+
+                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
+                                      !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal"))
+                    {
+                        if ((row.Cells["Required"].Value != null) && (bool)row.Cells["Required"].Value == true)
+                        {
+                            codeStructure += dtab + "[Required]\n";
+                        }
+                        codeStructure += dtab + "public ";
+                        codeStructure += "int ";
+                        codeStructure += row.Cells["PropertyName"].Value + "Id { get; set; } \n\n";
+                    }
+
+                    if ((row.Cells["IsKey"].Value != null) && (bool)row.Cells["IsKey"].Value == true)
+                    {
+                        codeStructure += dtab + "[Key]\n";
+                    }
+                    if ((row.Cells["Required"].Value != null) && (bool)row.Cells["Required"].Value == true)
+                    {
+                        codeStructure += dtab + "[Required]\n";
+                    }
+                    if ((row.Cells["Length"].Value != null) && !row.Cells["Length"].Value.Equals("") && row.Cells["Type"].Value.Equals("string?"))
+                    {
+                        codeStructure += dtab + $"[MaxLength({row.Cells["Length"].Value})]\n";
+                    }
+
+                    codeStructure += dtab + "public ";
+                    codeStructure += row.Cells["Type"].Value + " ";
+                    codeStructure += row.Cells["PropertyName"].Value + " { get; set; } \n\n";
+
+
+                }
+            }
+
+            codeStructure += "\n" + tab + "}" + "\n}";
+            return codeStructure;
+        }
+
 
         #endregion
 
@@ -520,7 +573,7 @@ namespace FitFactoryCodeGeneratorV2
         //method to clear fields in the form when called 
         public void ClearFields()
         {
-            txtSelectFolder.Clear();
+            //txtSelectFolder.Clear();
             txtTableName.Clear();
             txtPluralName.Clear();
             checkCore.Checked = false;
@@ -529,6 +582,8 @@ namespace FitFactoryCodeGeneratorV2
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            folderLocation = Form2.SetValueForFolderLocation;
+
             //When the form is loaded, adds datatypes to the combobox in the datagrid
             DataGridViewComboBoxCell cmbbox = new DataGridViewComboBoxCell();
             cmbbox.Items.Add("string?");
