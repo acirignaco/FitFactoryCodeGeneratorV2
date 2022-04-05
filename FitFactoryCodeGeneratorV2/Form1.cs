@@ -27,26 +27,6 @@ namespace FitFactoryCodeGeneratorV2
             ClearFields();
         }
 
-        private void txtTableName_TextChanged(object sender, EventArgs e)
-        {
-            if (txtTableName.Text.Any() && !System.Text.RegularExpressions.Regex.IsMatch(txtTableName.Text, "^[a-zA-Z]+$"))
-            {
-                txtTableName.Text = txtTableName.Text.Substring(0, txtTableName.Text.Length - 1);
-                txtTableName.SelectionStart = txtTableName.Text.Length;
-            }
-            txtPluralName.Text = txtTableName.Text + "s";
-        }
-
-        //method to clear fields in the form when called 
-        public void ClearFields()
-        {
-            txtSelectFolder.Clear();
-            txtTableName.Clear();
-            txtPluralName.Clear();
-            checkCore.Checked = false;
-            dataGridPropertyFields.Rows.Clear();
-        }
-
         private void btnGenerate_Click(object sender, EventArgs e)
         {
             bool successfulValidation = FormValidation();
@@ -112,7 +92,7 @@ namespace FitFactoryCodeGeneratorV2
                 }
             }
 
-            GeneratePosgresTable();
+            GeneratePosgresTableAndView();
             ClearFields();
         }
 
@@ -191,9 +171,22 @@ namespace FitFactoryCodeGeneratorV2
             MessageBox.Show("Successfully created file in " + sourceFile);
         }
 
+        public void StreamWriterCreate(string path, string content)
+        {
+            if (!File.Exists(path))
+            {
+                // Create a file to write to.
+                using (StreamWriter sw = File.CreateText(path))
+                {
+                    sw.WriteLine(content);
+                    sw.Close();
+                }
+            }
+        }
+
         #endregion
 
-        #region "GENERATED CODE METHODS"
+        #region "GENERATED CODE METHODS BACKEND"
 
         public string GenerateCodeModel(string filename, DataGridView dataGridView)
         {
@@ -211,6 +204,19 @@ namespace FitFactoryCodeGeneratorV2
                 }
                 else
                 {
+
+                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
+                                      !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal"))
+                    {
+                        if ((row.Cells["Required"].Value != null) && (bool)row.Cells["Required"].Value == true)
+                        {
+                            codeStructure += dtab + "[Required]\n";
+                        }
+                        codeStructure += dtab + "public ";
+                        codeStructure += "int ";
+                        codeStructure += row.Cells["PropertyName"].Value + "Id { get; set; } \n\n";
+                    }
+
                     if ((row.Cells["IsKey"].Value != null) && (bool)row.Cells["IsKey"].Value == true)
                     {
                         codeStructure += dtab + "[Key]\n";
@@ -223,9 +229,12 @@ namespace FitFactoryCodeGeneratorV2
                     {
                         codeStructure += dtab + $"[MaxLength({row.Cells["Length"].Value})]\n";
                     }
+                                    
                     codeStructure += dtab + "public ";
                     codeStructure += row.Cells["Type"].Value + " ";
                     codeStructure += row.Cells["PropertyName"].Value + " { get; set; } \n\n";
+
+               
                 }
             }
 
@@ -266,7 +275,6 @@ namespace FitFactoryCodeGeneratorV2
             codeStructure += "\n        #endregion";
 
             codeStructure += "\n" + tab + "}" + "\n}";
-            codeStructure += GetDropdownListValue();
 
             return codeStructure;
         }
@@ -302,21 +310,26 @@ namespace FitFactoryCodeGeneratorV2
                 }
                 else
                 {
-                    if ((row.Cells["IsKey"].Value != null) && (bool)row.Cells["IsKey"].Value == true)
-                    {
-                        codeStructure += dtab + "[Key]\n";
+                    if (row.Cells["Type"].Value.Equals("string?") || row.Cells["Type"].Value.Equals("int") ||
+                        row.Cells["Type"].Value.Equals("bool") || row.Cells["Type"].Value.Equals("Decimal"))
+                    { 
+
+                        if ((row.Cells["IsKey"].Value != null) && (bool)row.Cells["IsKey"].Value == true)
+                        {
+                            codeStructure += dtab + "[Key]\n";
+                        }
+                        if ((row.Cells["Required"].Value != null) && (bool)row.Cells["Required"].Value == true)
+                        {
+                            codeStructure += dtab + "[Required]\n";
+                        }
+                        if ((row.Cells["Length"].Value != null) && !row.Cells["Length"].Value.Equals("") && row.Cells["Type"].Value.Equals("string?"))
+                        {
+                            codeStructure += dtab + $"[MaxLength({row.Cells["Length"].Value})]\n";
+                        }
+                        codeStructure += dtab + "public ";
+                        codeStructure += row.Cells["Type"].Value + " ";
+                        codeStructure += row.Cells["PropertyName"].Value + " { get; set; } \n\n";
                     }
-                    if ((row.Cells["Required"].Value != null) && (bool)row.Cells["Required"].Value == true)
-                    {
-                        codeStructure += dtab + "[Required]\n";
-                    }
-                    if ((row.Cells["Length"].Value != null) && !row.Cells["Length"].Value.Equals("") && row.Cells["Type"].Value.Equals("string?"))
-                    {
-                        codeStructure += dtab + $"[MaxLength({row.Cells["Length"].Value})]\n";
-                    }
-                    codeStructure += dtab + "public ";
-                    codeStructure += row.Cells["Type"].Value + " ";
-                    codeStructure += row.Cells["PropertyName"].Value + " { get; set; } \n\n";
                 }
             }
 
@@ -380,12 +393,11 @@ namespace FitFactoryCodeGeneratorV2
             return dropdownListValue;
         }
 
-
         #endregion
 
         #region "GENERATE DATABASE"
 
-        private void GeneratePosgresTable()
+        private void GeneratePosgresTableAndView()
         {
             var connectionString = "Server=109.228.39.158;Port=5432;Database=Fitfactory;Persist Security Info=False;User ID=postgres;Password=postgres;";
 
@@ -407,7 +419,7 @@ namespace FitFactoryCodeGeneratorV2
             }
             catch (Exception ex)
             {
-                MessageBox.Show("View aready exists!!");
+                MessageBox.Show("Error Creating View!!");
             }
 
         }
@@ -432,23 +444,29 @@ namespace FitFactoryCodeGeneratorV2
                     }
                     if ((row.Cells["IsKey"].Value != null) && (bool)row.Cells["IsKey"].Value == true)
                     {
-                        sqlStatement += row.Cells["PropertyName"].Value + " SERIAL PRIMARY KEY,";
+                        sqlStatement += "\"" + row.Cells["PropertyName"].Value + "\"" + " SERIAL PRIMARY KEY,";
                     }
                     else if (row.Cells["Type"].Value.Equals("string?"))
                     {
-                        sqlStatement += row.Cells["PropertyName"].Value + $" VARCHAR({row.Cells["Length"].Value}) " + required + ",";
+                        sqlStatement += "\"" + row.Cells["PropertyName"].Value + "\"" + $" VARCHAR({row.Cells["Length"].Value}) " + required + ",";
                     }
                     else if (row.Cells["Type"].Value.Equals("int"))
                     {
-                        sqlStatement += row.Cells["PropertyName"].Value + $" INTEGER " + required + ",";
+                        sqlStatement += "\"" + row.Cells["PropertyName"].Value + "\"" + $" INTEGER " + required + ",";
                     }
                     else if (row.Cells["Type"].Value.Equals("bool"))
                     {
-                        sqlStatement += row.Cells["PropertyName"].Value + $" BOOLEAN " + required + ",";
+                        sqlStatement += "\"" + row.Cells["PropertyName"].Value + "\"" + $" BOOLEAN " + required + ",";
                     }
                     else if (row.Cells["Type"].Value.Equals("decimal"))
                     {
-                        sqlStatement += row.Cells["PropertyName"].Value + $" NUMERIC({row.Cells["Length"].Value}) " + required + ",";
+                        sqlStatement += "\"" + row.Cells["PropertyName"].Value + "\"" + $" NUMERIC({row.Cells["Length"].Value}) " + required + ",";
+                    }
+
+                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
+                                      !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal"))
+                    {
+                        sqlStatement += "\"" + row.Cells["PropertyName"].Value + "Id\"" + $" INTEGER " + required + ",";
                     }
                 }
             }
@@ -460,7 +478,6 @@ namespace FitFactoryCodeGeneratorV2
 
         public string GenerateViewSQL()
         {
-            string tableName = txtTableName.Text;
             string sqlStatement;
             sqlStatement = $"CREATE VIEW \"{txtTableName.Text}List\" AS ";
             sqlStatement += "SELECT ";
@@ -471,18 +488,44 @@ namespace FitFactoryCodeGeneratorV2
                 {
                 }
                 else
-                { 
-                    sqlStatement += $"{txtPluralName.Text}" + "." + $"{row.Cells[0].Value}" + ",";
+                {
+                    if (row.Cells["Type"].Value.Equals("string?") || row.Cells["Type"].Value.Equals("int") ||
+                       row.Cells["Type"].Value.Equals("bool") || row.Cells["Type"].Value.Equals("Decimal"))
+                    {
+                        sqlStatement += $"\"{txtPluralName.Text}\"" + "." + $"\"{row.Cells[0].Value}\"" + ",";
+
+                    }
                 }
             }
 
             sqlStatement = sqlStatement.Remove(sqlStatement.Length - 1, 1);
-            sqlStatement += $" FROM {txtPluralName.Text}";
-            sqlStatement += ";";
+            sqlStatement += $" FROM \"{txtPluralName.Text}\";";
             return sqlStatement;
         }
 
         #endregion
+
+        #region "MISC"
+
+        private void txtTableName_TextChanged(object sender, EventArgs e)
+        {
+            if (txtTableName.Text.Any() && !System.Text.RegularExpressions.Regex.IsMatch(txtTableName.Text, "^[a-zA-Z]+$"))
+            {
+                txtTableName.Text = txtTableName.Text.Substring(0, txtTableName.Text.Length - 1);
+                txtTableName.SelectionStart = txtTableName.Text.Length;
+            }
+            txtPluralName.Text = txtTableName.Text + "s";
+        }
+
+        //method to clear fields in the form when called 
+        public void ClearFields()
+        {
+            txtSelectFolder.Clear();
+            txtTableName.Clear();
+            txtPluralName.Clear();
+            checkCore.Checked = false;
+            dataGridPropertyFields.Rows.Clear();
+        }
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -493,21 +536,31 @@ namespace FitFactoryCodeGeneratorV2
             cmbbox.Items.Add("bool");
             cmbbox.Items.Add("Decimal");
 
+            foreach (var name in GetAllModelNames())
+            {
+                cmbbox.Items.Add(name);
+            }
+
             ((DataGridViewComboBoxColumn)dataGridPropertyFields.Columns["Type"]).DataSource = cmbbox.Items;
         }
 
-        public void StreamWriterCreate(string path, string content)
+        public List<string?> GetAllModelNames()
         {
-            if (!File.Exists(path))
+            List<string?> modelNames = new List<string?>();
+
+            //string directory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Models\\";
+            DirectoryInfo di = new DirectoryInfo($"C:\\Users\\William\\source\\repos\\Fitfactory\\Fitfactory\\Models\\");
+            FileInfo[] files  = di.GetFiles("*");
+
+            foreach (var file in files)
             {
-                // Create a file to write to.
-                using (StreamWriter sw = File.CreateText(path))
-                {
-                    sw.WriteLine(content);
-                    sw.Close();
-                }
+                modelNames.Add(file.Name.Substring(0, file.Name.Length - 3) + "?");
             }
+
+            return modelNames;
         }
+
+        #endregion
 
     }
 }
