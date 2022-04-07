@@ -8,6 +8,16 @@ namespace FitFactoryCodeGeneratorV2
         string tab = "    ";
         string dtab = "        ";
         string folderLocation = "";
+        string txtTableNameToLowerFirstChar = "";
+
+        public string ToLowerFirstChar()
+        {
+            if (string.IsNullOrEmpty(txtTableName.Text))
+                return txtTableName.Text;
+
+            return char.ToLower(txtTableName.Text[0]) + txtTableName.Text.Substring(1);
+        }
+
 
         public Form1()
         {
@@ -49,11 +59,15 @@ namespace FitFactoryCodeGeneratorV2
 
         private void btnGenerate_Click(object sender, EventArgs e, DataGridView dataGridPropertyFields)
         {
+            txtTableNameToLowerFirstChar = ToLowerFirstChar();
+
             string modelsPath = folderLocation + "\\Models\\" + txtTableName.Text + ".cs";
             string corePath = folderLocation + "\\Data\\" + txtTableName.Text + "Service.Core.cs";
             string servicePath = folderLocation + "\\Data\\" + txtTableName.Text + "Service.cs";
             string dataviewPath = folderLocation + "\\DataViews\\" + txtTableName.Text + "ListItem.cs";
             string appDbContextPath = folderLocation + "\\Data\\" + "AppDbContext.cs";
+            string pagesPath = folderLocation + "\\Pages\\" + $"\\{txtPluralName.Text}\\" + txtPluralName.Text + "List.razor";
+            string pagesAddPath = folderLocation + "\\Pages\\" + $"\\{txtPluralName.Text}\\" + txtTableName.Text + "Add.razor";
 
             List<string> paths = new List<string>();
             paths.Add(modelsPath);
@@ -64,6 +78,8 @@ namespace FitFactoryCodeGeneratorV2
             }
             paths.Add(dataviewPath);
             paths.Add(appDbContextPath);
+            paths.Add(pagesPath);
+            paths.Add(pagesAddPath);
 
             foreach (var path in paths)
             {
@@ -122,6 +138,10 @@ namespace FitFactoryCodeGeneratorV2
             {
                 destinationFile = folderLocation + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + "AppDbContext.cs.bak";
             }
+            else if (sourceFile.Contains(".razor") && sourceFile.Contains("List"))
+            {
+                destinationFile = folderLocation + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + txtTableName.Text + "List.bak";
+            }
 
             // Todo - might have an issue if sourceFile doesn't exist
             // To move a file to a new location 
@@ -159,6 +179,18 @@ namespace FitFactoryCodeGeneratorV2
             else if (sourceFile.Contains("AppDbContext.cs"))
             {
                 csContent = AmmendAppDbContext();
+            }
+            else if (sourceFile.Contains(".razor") && sourceFile.Contains("List"))
+            {
+                if (!Directory.Exists(folderLocation + "\\Pages\\" + $"\\{txtPluralName.Text}\\"))
+                {
+                    Directory.CreateDirectory(folderLocation + "\\Pages\\" + $"\\{txtPluralName.Text}\\");
+                }
+                csContent = GenerateListPage(txtTableName.Text, dataGridPropertyFields);
+            }
+            else if (sourceFile.Contains(".razor") && sourceFile.Contains("Add"))
+            {
+                csContent = GenerateAddPage(txtTableName.Text, dataGridPropertyFields);
             }
 
             // write content to file            
@@ -201,7 +233,8 @@ namespace FitFactoryCodeGeneratorV2
                 {
 
                     if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
-                                      !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal"))
+                        !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") && 
+                        !row.Cells["Type"].Value.Equals("DateTime?"))
                     {
                         if ((row.Cells["Required"].Value != null) && (bool)row.Cells["Required"].Value == true)
                         {
@@ -250,7 +283,7 @@ namespace FitFactoryCodeGeneratorV2
             codeStructure += $"\n\n{dtab}public Dictionary<int, {dropdownListValues[1]}> GetDropList()\n{dtab}{{\n{tab + dtab}return _appDbContext.{txtPluralName.Text}.OrderBy(a => a.Id).ToDictionary(c => c.Id, c => c.{dropdownListValues[0]});\n{dtab}}}";
             codeStructure += $"\n\n{dtab}public {txtTableName.Text}? GetById(int Id)\n{dtab}{{\n{tab}{dtab}return _appDbContext.{txtPluralName.Text}.FirstOrDefault(c => c.Id == Id);\n{dtab}}}";
             codeStructure += $"\n\n{dtab}public List<{txtTableName.Text}ListItem> GetList(int pageIndex = 0, int pageSize = 0, string orderBy = \"\", string filterQuery = \"\")\n{dtab}{{\n{tab}{dtab}IQueryable<{txtTableName.Text}ListItem> dataList; \n{tab}{dtab}int count;\n{tab}{dtab}if (string.IsNullOrEmpty(orderBy) && string.IsNullOrEmpty(filterQuery))\n{tab}{dtab}{{\n{dtab}{dtab}dataList = _appDbContext.{txtPluralName.Text}List.AsQueryable();\n{dtab}{dtab}count = dataList.Count();\n{tab}{dtab}}}\n{tab}{dtab}else if (string.IsNullOrEmpty(orderBy) && !string.IsNullOrEmpty(filterQuery))\n{tab}{dtab}{{\n{dtab}{dtab}dataList = _appDbContext.{txtPluralName.Text}List.Where(filterQuery).AsQueryable();\n{dtab}{dtab}count = dataList.Count();\n{tab}{dtab}}}\n{tab}{dtab}else if (string.IsNullOrEmpty(filterQuery) && !string.IsNullOrEmpty(orderBy))\n{tab}{dtab}{{\n{dtab}{dtab}dataList = _appDbContext.{txtPluralName.Text}List.OrderBy(orderBy).AsQueryable();\n{dtab}{dtab}count = dataList.Count();\n{tab}{dtab}}}\n{tab}{dtab}else {{\n{dtab}{dtab}dataList = _appDbContext.{ txtPluralName.Text}List.OrderBy(orderBy).Where(filterQuery).AsQueryable();\n{dtab}{dtab}count = dataList.Count();\n{tab}{dtab}}}\n\n{tab}{dtab}if (pageSize > 0)\n{tab}{dtab}{{\n{dtab}{dtab}var pagedDataList = dataList.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();\n{dtab}{dtab}return (new PaginatedList<{txtTableName.Text}ListItem> (pagedDataList, count, pageIndex, pageSize).ToList());\n{tab}{dtab}}}\n{tab}{dtab}else\n{tab}{dtab}{{\n{dtab}{dtab}return dataList.ToList();\n{dtab}{dtab}\n{tab}{dtab}}}\n{dtab}}}";
-            codeStructure += $"\n\n{dtab}public Task<{txtTableName.Text}> Add({txtTableName.Text} dataObject)\n{dtab}{{\n{tab}{dtab}var addedObject = _appDbContext.{txtPluralName.Text}.Add(dataObject);\n{tab}{dtab}_appDbContext.SaveChanges();\n{tab}{dtab}return Task.FromResult(addedObject.Entity);\n{dtab}}}";
+            codeStructure += $"\n\n{dtab}public {txtTableName.Text} Add({txtTableName.Text} dataObject)\n{dtab}{{\n{tab}{dtab}var addedObject = _appDbContext.{txtPluralName.Text}.Add(dataObject);\n{tab}{dtab}_appDbContext.SaveChanges();\n{tab}{dtab}return addedObject.Entity;\n{dtab}}}";
             codeStructure += $"\n\n{dtab}public bool Delete(int Id)\n{dtab}{{\n{tab}{dtab}var dataObject = _appDbContext.{txtPluralName.Text}.FirstOrDefault(e => e.Id == Id);\n{tab}{dtab}if (dataObject == null) return false;\n\n{tab}{dtab}_appDbContext.{ txtPluralName.Text}.Remove(dataObject);\n{tab}{dtab}_appDbContext.SaveChanges();\n{tab}{dtab}return true;\n{dtab}}}";
 
           
@@ -306,7 +339,8 @@ namespace FitFactoryCodeGeneratorV2
                 else
                 {
                     if (row.Cells["Type"].Value.Equals("string?") || row.Cells["Type"].Value.Equals("int") ||
-                        row.Cells["Type"].Value.Equals("bool") || row.Cells["Type"].Value.Equals("Decimal"))
+                        row.Cells["Type"].Value.Equals("bool") || row.Cells["Type"].Value.Equals("Decimal") || 
+                        row.Cells["Type"].Value.Equals("DateTime?"))
                     { 
 
                         if ((row.Cells["IsKey"].Value != null) && (bool)row.Cells["IsKey"].Value == true)
@@ -391,60 +425,146 @@ namespace FitFactoryCodeGeneratorV2
         #endregion
 
         #region "CODE METHODS FRONTEND"
-        public string GenerateListPage()
+        public string GenerateListPage(string filename, DataGridView dataGridView)
         {
-            string codeStructure = "";
-            string imports = "using System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Text;\nusing System.Threading.Tasks;\nusing System.ComponentModel.DataAnnotations;\n";
-            string namespaceAndClass = $"\nnamespace Fitfactory.Models\n{{\n{tab}public class {char.ToUpper(filename[0]) + filename.Substring(1)} \n{tab}{{\n";
+            string codeStructure = $"@page \"/{txtPluralName.Text}List\"\n\n" +
+                $"<PageTitle>{txtPluralName.Text} - Fitfactory ERP</PageTitle>\n\n" +
+                $"@using Fitfactory.Data\n@using Fitfactory.DataViews\n" +
+                $"@using Fitfactory.Models\n@using Syncfusion.Blazor.Grids\n\n" +
+                $"@inject IModalService modal\n" +
+                $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n" +
+                $"@inject NavigationManager NavigationManager\n\n" +
+                $"@attribute [Authorize]\n\n" +
+                $"<br/>\n" +
+                $"<div class=\"card\">\n" +
+                $"    <h3 class=\"card-header\">{txtTableName.Text}</h3>\n" +
+                $"    <div class=\"card-body\">\n" +
+                $"        @if (Loaded == false)\n" +
+                $"        {{\n" +
+                $"            <p><em>Loading...</em></p>\n" +
+                $"        }}\n" +
+                $"        else\n" +
+                $"        {{\n" +
 
-            codeStructure = imports + namespaceAndClass;
+                $"            <button @onclick=\"@(() => ShowAdd{txtTableName.Text}())\" class=\"btn btn-success\">Add {txtTableName.Text}</button>\n" +
+                $"            <button @onclick=\"@(() => PrintReport())\" class=\"btn btn-primary\">Print Selected</button>\n" +
+                $"            <div class=\"container-fluid\">\n" +
+                $"                <br />\n" +
+                $"                <SfGrid @ref=\"grid\" DataSource=\"@gridData\" RowHeight=\"38\" AllowSorting=\"true\" AllowFiltering=\"true\" AllowPaging=\"true\" AllowGrouping=\"true\" EnableHover=\"true\" AllowSelection=\"true\" AllowResizing=\"true\" AllowExcelExport=\"true\" AllowPdfExport=\"true\" ContextMenuItems=\"@(new List<object>() {{ \"ExcelExport\", \"CsvExport\" }})\" ShowColumnChooser=\"true\" AllowReordering=\"true\" Toolbar=\"@(new List<string>() {{ \"ColumnChooser\" }})\">\n" +
+                $"                <GridFilterSettings Type=\"Syncfusion.Blazor.Grids.FilterType.Menu\"></GridFilterSettings>\n" +
+                $"                <GridPageSettings PageSize=\"30\"></GridPageSettings>\n" +
+                $"                <GridColumns>\n";
+
+
 
             foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
             {
-                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
-                {
 
-                }
-                else
+                if (row.Cells["PropertyName"].Value != null)
                 {
-
-                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
-                                      !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal"))
+                    if (row.Cells["Type"].Value.Equals("string?") || row.Cells["Type"].Value.Equals("int") ||
+                            row.Cells["Type"].Value.Equals("bool") || row.Cells["Type"].Value.Equals("Decimal") || 
+                            row.Cells["Type"].Value.Equals("DateTime?"))
                     {
-                        if ((row.Cells["Required"].Value != null) && (bool)row.Cells["Required"].Value == true)
+
+                        string primaryKeyString = "";
+                        string booleanString = "";
+                        if ((row.Cells["IsKey"].Value != null) && (bool)row.Cells["IsKey"].Value == true)
                         {
-                            codeStructure += dtab + "[Required]\n";
+                            primaryKeyString = $"IsPrimaryKey =\"true\" TextAlign=\"TextAlign.Center\"";
+                        } 
+                        if (row.Cells["Type"].Value.Equals("bool"))
+                        {
+                            booleanString = $"DisplayAsCheckBox=\"true\" DefaultValue=\"false\" TextAlign=\"TextAlign.Center\"";
                         }
-                        codeStructure += dtab + "public ";
-                        codeStructure += "int ";
-                        codeStructure += row.Cells["PropertyName"].Value + "Id { get; set; } \n\n";
+                        codeStructure += $"                    <GridColumn Field=@nameof({txtTableName.Text}ListItem.{row.Cells["PropertyName"].Value}) HeaderText=\"{row.Cells["PropertyName"].Value}\" {primaryKeyString} {booleanString} Width=\"150\"></GridColumn>\n";
                     }
-
-                    if ((row.Cells["IsKey"].Value != null) && (bool)row.Cells["IsKey"].Value == true)
-                    {
-                        codeStructure += dtab + "[Key]\n";
-                    }
-                    if ((row.Cells["Required"].Value != null) && (bool)row.Cells["Required"].Value == true)
-                    {
-                        codeStructure += dtab + "[Required]\n";
-                    }
-                    if ((row.Cells["Length"].Value != null) && !row.Cells["Length"].Value.Equals("") && row.Cells["Type"].Value.Equals("string?"))
-                    {
-                        codeStructure += dtab + $"[MaxLength({row.Cells["Length"].Value})]\n";
-                    }
-
-                    codeStructure += dtab + "public ";
-                    codeStructure += row.Cells["Type"].Value + " ";
-                    codeStructure += row.Cells["PropertyName"].Value + " { get; set; } \n\n";
-
-
                 }
             }
 
-            codeStructure += "\n" + tab + "}" + "\n}";
+
+            codeStructure += $"                </GridColumns>\n" +
+            $"                </SfGrid>\n" +
+            $"            </div>\n" +
+            $"        }}\n" +
+            $"    </div>\n" +
+            $"</div>\n\n" +
+
+            $"@code {{\n" +
+            $"    private List<{txtTableName.Text}ListItem> gridData;\n" +
+            $"    SfGrid<{txtTableName.Text}ListItem> grid {{ get; set; }}\n" +
+            $"    private bool Loaded;\n" +
+            $"    protected override async Task OnInitializedAsync()\n" +
+            $"    {{\n" +
+            $"        await Task.Run(LoadData);\n" +
+            $"    }}\n\n" +
+            $"    private void LoadData()\n" +
+            $"    {{\n" +
+            $"        gridData = {txtTableName.Text}Service.GetList();\n" +
+            $"        Loaded = true;\n" +
+            $"    }}\n\n" +
+            $"    [CascadingParameter] public IModalService Modal {{ get; set; }}\n\n" +
+            $"    void ShowAdd{txtTableName.Text}()\n" +
+            $"    {{\n" +
+            $"        var parameters = new ModalParameters();\n" +
+            $"        //TODO: Add parameter value for Add page - assuming there are foreign keys\n" +
+            $"        //parameters.Add(\"{txtPluralName.Text}\", CurrencyService.GetList());\n" +
+            $"        Modal.Show<{txtTableName.Text}Add>(\"Add {txtTableName.Text}\", parameters);\n" +
+            $"    }}\n" +
+            $"    void PrintReport()\n" +
+            $"    {{\n" +
+            $"        NavigationManager.NavigateTo(\"reportviewer\", true);\n" +
+            $"    }}\n" +
+            $"}}\n\n";
+
             return codeStructure;
         }
 
+        public string GenerateAddPage(string filename, DataGridView dataGridView)
+        {
+            string codeStructure = $"@page \"/{txtPluralName.Text}Add\"\n\n" +
+
+                $"@using Fitfactory.Data\n@using Fitfactory.DataViews\n" +
+                $"@using Fitfactory.Models\n@using Syncfusion.Blazor.DropDowns\n\n" +
+                $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n" +
+                $"@inject IToastService ToastService\n" +
+                $"@inject NavigationManager NavigationManager\n\n" +
+                $"@attribute [Authorize]\n\n" +
+
+                $"<div class=\"card\">\n" +
+                $"    <div class=\"card-body\">\n" +
+
+                $"        <EditForm Model=\"{txtTableNameToLowerFirstChar}\">\n" +
+                $"            <DataAnnotationsValidator />" + 
+                $"            \n\n\n\n\n" + 
+                $"        </EditForm>\n" + 
+
+                $"    </div>\n" +
+                $"</div>\n\n" +
+
+                $"@code {{\n" +
+                $"    {txtTableName.Text} {txtTableNameToLowerFirstChar} = new {txtTableName.Text}();\n" +
+                $"    //[Parameter]\n" +
+                $"    //public List<{txtTableName.Text}ListItem> {txtPluralName.Text} {{ get; set; }} \n" +
+                $"    protected override async Task OnInitializedAsync()\n" +
+                $"    {{\n" +
+                $"        await Task.Run(LoadData);\n" +
+                $"    }}\n\n" +
+                $"    private void LoadData()\n" +
+                $"    {{\n" +
+                $"        \n" +
+                $"    }}\n\n" +
+                $"    void Create{txtTableName.Text}()\n" +
+                $"    {{\n" +
+                $"        {txtTableName.Text}? new{txtTableName.Text} = {txtTableName.Text}Service.Add({txtTableNameToLowerFirstChar});\n" +
+                $"        new{txtTableName.Text} = {txtTableName.Text}Service.Update(new{txtTableName.Text});\n" +
+                $"        ToastService.ShowSuccess($\"The new {txtTableName.Text}\", \"Successfully Added\" );\n" +
+                $"        NavigationManager.NavigateTo(\"{txtPluralName.Text}List\");\n" +
+                $"    }}\n" +
+                $"}}\n\n";
+
+            return codeStructure;
+        }
 
         #endregion
 
@@ -511,13 +631,17 @@ namespace FitFactoryCodeGeneratorV2
                     {
                         sqlStatement += "\"" + row.Cells["PropertyName"].Value + "\"" + $" BOOLEAN " + required + ",";
                     }
-                    else if (row.Cells["Type"].Value.Equals("decimal"))
+                    else if (row.Cells["Type"].Value.Equals("Decimal"))
                     {
                         sqlStatement += "\"" + row.Cells["PropertyName"].Value + "\"" + $" NUMERIC({row.Cells["Length"].Value}) " + required + ",";
                     }
+                    else if (row.Cells["Type"].Value.Equals("DateTime?"))
+                    {
+                        sqlStatement += "\"" + row.Cells["PropertyName"].Value + "\"" + $" TIMESTAMPTZ " + required + ",";
+                    }
 
-                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
-                                      !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal"))
+                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") && !row.Cells["Type"].Value.Equals("DateTime?") &&
+                    !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal"))
                     {
                         sqlStatement += "\"" + row.Cells["PropertyName"].Value + "Id\"" + $" INTEGER " + required + ",";
                     }
@@ -532,7 +656,7 @@ namespace FitFactoryCodeGeneratorV2
         public string GenerateViewSQL()
         {
             string sqlStatement;
-            sqlStatement = $"CREATE VIEW \"{txtTableName.Text}List\" AS ";
+            sqlStatement = $"CREATE VIEW \"{txtPluralName.Text}List\" AS ";
             sqlStatement += "SELECT ";
             
             foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
@@ -542,7 +666,7 @@ namespace FitFactoryCodeGeneratorV2
                 }
                 else
                 {
-                    if (row.Cells["Type"].Value.Equals("string?") || row.Cells["Type"].Value.Equals("int") ||
+                    if (row.Cells["Type"].Value.Equals("string?") || row.Cells["Type"].Value.Equals("int") || row.Cells["Type"].Value.Equals("DateTime?") ||
                        row.Cells["Type"].Value.Equals("bool") || row.Cells["Type"].Value.Equals("Decimal"))
                     {
                         sqlStatement += $"\"{txtPluralName.Text}\"" + "." + $"\"{row.Cells[0].Value}\"" + ",";
@@ -590,6 +714,7 @@ namespace FitFactoryCodeGeneratorV2
             cmbbox.Items.Add("int");
             cmbbox.Items.Add("bool");
             cmbbox.Items.Add("Decimal");
+            cmbbox.Items.Add("DateTime?");
 
             foreach (var name in GetAllModelNames())
             {
