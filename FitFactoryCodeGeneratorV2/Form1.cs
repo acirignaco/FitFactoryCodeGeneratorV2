@@ -9,6 +9,8 @@ namespace FitFactoryCodeGeneratorV2
         string dtab = "        ";
         string folderLocation = "";
         string txtTableNameToLowerFirstChar = "";
+        List<string?> listOfDataTypes = new List<string?>();
+        List<string?> listOfModelNames = new List<string?>();
 
         public string ToLowerFirstChar()
         {
@@ -60,6 +62,11 @@ namespace FitFactoryCodeGeneratorV2
         private void btnGenerate_Click(object sender, EventArgs e, DataGridView dataGridPropertyFields)
         {
             txtTableNameToLowerFirstChar = ToLowerFirstChar();
+            //listOfDataTypes = GetAllDataTypes();
+            //listOfModelNames = GetAllModelNames();
+
+
+
 
             string modelsPath = folderLocation + "\\Models\\" + txtTableName.Text + ".cs";
             string corePath = folderLocation + "\\Data\\" + txtTableName.Text + "Service.Core.cs";
@@ -68,6 +75,7 @@ namespace FitFactoryCodeGeneratorV2
             string appDbContextPath = folderLocation + "\\Data\\" + "AppDbContext.cs";
             string pagesPath = folderLocation + "\\Pages\\" + $"\\{txtPluralName.Text}\\" + txtPluralName.Text + "List.razor";
             string pagesAddPath = folderLocation + "\\Pages\\" + $"\\{txtPluralName.Text}\\" + txtTableName.Text + "Add.razor";
+            string pagesEditPath = folderLocation + "\\Pages\\" + $"\\{txtPluralName.Text}\\" + txtTableName.Text + "Edit.razor";
 
             List<string> paths = new List<string>();
             paths.Add(modelsPath);
@@ -80,6 +88,7 @@ namespace FitFactoryCodeGeneratorV2
             paths.Add(appDbContextPath);
             paths.Add(pagesPath);
             paths.Add(pagesAddPath);
+            paths.Add(pagesEditPath);
 
             foreach (var path in paths)
             {
@@ -142,6 +151,14 @@ namespace FitFactoryCodeGeneratorV2
             {
                 destinationFile = folderLocation + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + txtTableName.Text + "List.bak";
             }
+            else if (sourceFile.Contains(".razor") && sourceFile.Contains("Add"))
+            {
+                destinationFile = folderLocation + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + txtTableName.Text + "Add.bak";
+            }
+            else if (sourceFile.Contains(".razor") && sourceFile.Contains("Edit"))
+            {
+                destinationFile = folderLocation + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + txtTableName.Text + "Edit.bak";
+            }
 
             // Todo - might have an issue if sourceFile doesn't exist
             // To move a file to a new location 
@@ -186,11 +203,15 @@ namespace FitFactoryCodeGeneratorV2
                 {
                     Directory.CreateDirectory(folderLocation + "\\Pages\\" + $"\\{txtPluralName.Text}\\");
                 }
-                csContent = GenerateListPage(txtTableName.Text, dataGridPropertyFields);
+                csContent = GenerateListPage();
             }
             else if (sourceFile.Contains(".razor") && sourceFile.Contains("Add"))
             {
-                csContent = GenerateAddPage(txtTableName.Text, dataGridPropertyFields);
+                csContent = GenerateAddPage();
+            }
+            else if (sourceFile.Contains(".razor") && sourceFile.Contains("Edit"))
+            {
+                csContent = GenerateEditPage();
             }
 
             // write content to file            
@@ -219,9 +240,28 @@ namespace FitFactoryCodeGeneratorV2
         {
             string codeStructure = "";
             string imports = "using System;\nusing System.Collections.Generic;\nusing System.Linq;\nusing System.Text;\nusing System.Threading.Tasks;\nusing System.ComponentModel.DataAnnotations;\n";
-            string namespaceAndClass = $"\nnamespace Fitfactory.Models\n{{\n{tab}public class {char.ToUpper(filename[0]) + filename.Substring(1)} \n{tab}{{\n";
+            string namespaceAndClass = $"\nnamespace Fitfactory.Models\n{{\n{tab}public class {char.ToUpper(filename[0]) + filename.Substring(1)} \n{tab}{{\n\n";
 
             codeStructure = imports + namespaceAndClass;
+
+            codeStructure += $"        public {txtTableName.Text}()\n";
+            codeStructure += $"        {{\n";
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+
+                }
+                else 
+                {
+                    if (row.Cells["Type"].Value.Equals("DateTime?"))
+                    {
+                        codeStructure += $"            {row.Cells["PropertyName"].Value} = DateTime.UtcNow;\n";
+                    }
+                }
+            }
+            codeStructure += $"        }}\n\n";
+
 
             foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
             {
@@ -231,7 +271,6 @@ namespace FitFactoryCodeGeneratorV2
                 }
                 else
                 {
-
                     if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
                         !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") && 
                         !row.Cells["Type"].Value.Equals("DateTime?"))
@@ -369,10 +408,6 @@ namespace FitFactoryCodeGeneratorV2
             return codeStructure;
         }
 
-        /// <summary>
-        /// Code to ammend the AppDbContext  
-        /// </summary>
-        /// <returns></returns>
         public string AmmendAppDbContext()
         {
             // get current context of AppDbContext.cs 
@@ -425,35 +460,41 @@ namespace FitFactoryCodeGeneratorV2
         #endregion
 
         #region "CODE METHODS FRONTEND"
-        public string GenerateListPage(string filename, DataGridView dataGridView)
+
+        public string GenerateListPage()
         {
             string codeStructure = $"@page \"/{txtPluralName.Text}List\"\n\n" +
-                $"<PageTitle>{txtPluralName.Text} - Fitfactory ERP</PageTitle>\n\n" +
-                $"@using Fitfactory.Data\n@using Fitfactory.DataViews\n" +
-                $"@using Fitfactory.Models\n@using Syncfusion.Blazor.Grids\n\n" +
-                $"@inject IModalService modal\n" +
-                $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n" +
-                $"@inject NavigationManager NavigationManager\n\n" +
-                $"@attribute [Authorize]\n\n" +
-                $"<br/>\n" +
-                $"<div class=\"card\">\n" +
-                $"    <h3 class=\"card-header\">{txtTableName.Text}</h3>\n" +
-                $"    <div class=\"card-body\">\n" +
-                $"        @if (Loaded == false)\n" +
-                $"        {{\n" +
-                $"            <p><em>Loading...</em></p>\n" +
-                $"        }}\n" +
-                $"        else\n" +
-                $"        {{\n" +
+            $"<PageTitle>{txtPluralName.Text} - Fitfactory ERP</PageTitle>\n\n" +
+            $"@using Fitfactory.Data\n@using Fitfactory.DataViews\n" +
+            $"@using Fitfactory.Models\n@using Syncfusion.Blazor.Grids\n\n" +
+            $"@inject IToastService ToastService\n" +
+            $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n" +
+            $"@inject NavigationManager NavigationManager\n\n" +
+            $"@attribute [Authorize]\n\n" +
+            $"<br/>\n" +
+            $"<div class=\"card\">\n" +
+            $"    <h3 class=\"card-header\">{txtPluralName.Text}</h3>\n" +
+            $"    <div class=\"card-body\">\n" +
+            $"        @if (Loaded == false)\n" +
+            $"        {{\n" +
+            $"            <div class=\"d-flex justify-content-center\">\n" +
+            $"                <div class=\"spinner-border\" role=\"status\">\n" +
+            $"                    <span class=\"visually-hidden\">Loading...</span>\n" +
+            $"                </div>\n" +
+            $"            </div>\n" +
+            $"        }}\n" +
+            $"        else\n" +
+            $"        {{\n" +
 
-                $"            <button @onclick=\"@(() => ShowAdd{txtTableName.Text}())\" class=\"btn btn-success\">Add {txtTableName.Text}</button>\n" +
-                $"            <button @onclick=\"@(() => PrintReport())\" class=\"btn btn-primary\">Print Selected</button>\n" +
-                $"            <div class=\"container-fluid\">\n" +
-                $"                <br />\n" +
-                $"                <SfGrid @ref=\"grid\" DataSource=\"@gridData\" RowHeight=\"38\" AllowSorting=\"true\" AllowFiltering=\"true\" AllowPaging=\"true\" AllowGrouping=\"true\" EnableHover=\"true\" AllowSelection=\"true\" AllowResizing=\"true\" AllowExcelExport=\"true\" AllowPdfExport=\"true\" ContextMenuItems=\"@(new List<object>() {{ \"ExcelExport\", \"CsvExport\" }})\" ShowColumnChooser=\"true\" AllowReordering=\"true\" Toolbar=\"@(new List<string>() {{ \"ColumnChooser\" }})\">\n" +
-                $"                <GridFilterSettings Type=\"Syncfusion.Blazor.Grids.FilterType.Menu\"></GridFilterSettings>\n" +
-                $"                <GridPageSettings PageSize=\"30\"></GridPageSettings>\n" +
-                $"                <GridColumns>\n";
+            $"            <button @onclick=\"@(() => ShowAdd{txtTableName.Text}())\" class=\"btn btn-success\">Add {txtTableName.Text}</button>\n" +
+            $"            <button @onclick=\"@(() => ShowEdit{txtTableName.Text}())\" class=\"btn btn-success\">Add {txtTableName.Text}</button>\n" +
+            $"            <button @onclick=\"@(() => PrintReport())\" class=\"btn btn-primary\">Print Selected</button>\n" +
+            $"            <br />\n" +
+            $"            <div class=\"container-fluid\">\n" +
+            $"                <SfGrid @ref=\"grid\" DataSource=\"@gridData\" RowHeight=\"38\" AllowSorting=\"true\" AllowFiltering=\"true\" AllowPaging=\"true\" AllowGrouping=\"true\" EnableHover=\"true\" AllowSelection=\"true\" AllowResizing=\"true\" AllowExcelExport=\"true\" AllowPdfExport=\"true\" ContextMenuItems=\"@(new List<object>() {{ \"ExcelExport\", \"CsvExport\" }})\" ShowColumnChooser=\"true\" AllowReordering=\"true\" Toolbar=\"@(new List<string>() {{ \"ColumnChooser\" }})\">\n" +
+            $"                <GridFilterSettings Type=\"Syncfusion.Blazor.Grids.FilterType.Menu\"></GridFilterSettings>\n" +
+            $"                <GridPageSettings PageSize=\"30\"></GridPageSettings>\n" +
+            $"                <GridColumns>\n";
 
 
 
@@ -489,11 +530,15 @@ namespace FitFactoryCodeGeneratorV2
             $"        }}\n" +
             $"    </div>\n" +
             $"</div>\n\n" +
+            $"<{txtTableName.Text}Add @ref=\"AddDialog\"></{txtTableName.Text}Add>\n\n" +
+            $"<{txtTableName.Text}Edit @ref=\"EditDialog\"></{txtTableName.Text}Edit>\n\n" +
 
             $"@code {{\n" +
             $"    private List<{txtTableName.Text}ListItem> gridData;\n" +
             $"    SfGrid<{txtTableName.Text}ListItem> grid {{ get; set; }}\n" +
             $"    private bool Loaded;\n" +
+            $"    {txtTableName.Text}Add AddDialog;\n" +
+            $"    {txtTableName.Text}Edit EditDialog;\n\n" +
             $"    protected override async Task OnInitializedAsync()\n" +
             $"    {{\n" +
             $"        await Task.Run(LoadData);\n" +
@@ -503,63 +548,155 @@ namespace FitFactoryCodeGeneratorV2
             $"        gridData = {txtTableName.Text}Service.GetList();\n" +
             $"        Loaded = true;\n" +
             $"    }}\n\n" +
-            $"    [CascadingParameter] public IModalService Modal {{ get; set; }}\n\n" +
+            $"    void ShowEdit{txtTableName.Text}()\n" +
+            $"    {{\n" +
+            $"        if (grid.SelectedRecords != null && grid.SelectedRecords.Count > 0)\n" +
+            $"        {{\n" +
+            $"            var selectedRow = this.grid.GetSelectedRecordsAsync();\n" +
+            $"            int {txtTableNameToLowerFirstChar}Id = selectedRow.Result.AsEnumerable().First().Id;\n" +
+            $"        }}\n" +
+            $"        else\n" +
+            $"        {{\n" +
+            $"            ToastService.ShowError(\"Please select a row before editing!\");\n" +
+            $"        }}\n" +
+            $"    }}\n\n" +
             $"    void ShowAdd{txtTableName.Text}()\n" +
             $"    {{\n" +
-            $"        var parameters = new ModalParameters();\n" +
-            $"        //TODO: Add parameter value for Add page - assuming there are foreign keys\n" +
-            $"        //parameters.Add(\"{txtPluralName.Text}\", CurrencyService.GetList());\n" +
-            $"        Modal.Show<{txtTableName.Text}Add>(\"Add {txtTableName.Text}\", parameters);\n" +
+            $"        AddDialog.OpenDialog();\n" +
             $"    }}\n" +
-            $"    void PrintReport()\n" +
-            $"    {{\n" +
-            $"        NavigationManager.NavigateTo(\"reportviewer\", true);\n" +
-            $"    }}\n" +
-            $"}}\n\n";
+            $"}}\n";
 
             return codeStructure;
+
+            //foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            //{
+
+            //    if (row.Cells["PropertyName"].Value != null)
+            //    {
+            //        if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
+            //                !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") &&
+            //                !row.Cells["Type"].Value.Equals("DateTime?"))
+            //        {
+            //            codeStructure += $"        parameters.Add(\"{txtTableNameToLowerFirstChar + "s"}\", {row.Cells["Type"].Value.ToString().Remove(row.Cells["Type"].Value.ToString().Length - 1, 1)}Service.GetList());\n";
+            //        }
+            //    }
+            //}
+
+
         }
 
-        public string GenerateAddPage(string filename, DataGridView dataGridView)
+        public string GenerateAddPage()
         {
-            string codeStructure = $"@page \"/{txtPluralName.Text}Add\"\n\n" +
-
+            string codeStructure = $"@page \"/{txtTableName.Text}Add\"\n\n" +
                 $"@using Fitfactory.Data\n@using Fitfactory.DataViews\n" +
-                $"@using Fitfactory.Models\n@using Syncfusion.Blazor.DropDowns\n\n" +
+                $"@using Fitfactory.Models\n@using Syncfusion.Blazor.Popups\n\n" +
                 $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n" +
                 $"@inject IToastService ToastService\n" +
                 $"@inject NavigationManager NavigationManager\n\n" +
                 $"@attribute [Authorize]\n\n" +
 
-                $"<div class=\"card\">\n" +
-                $"    <div class=\"card-body\">\n" +
+                $"<div id=\"DialogTarget\">\n" +
+                $"    <SfDialog Target=\"#DialogTarget\" Width=\"335px\" AllowDragging=\"true\" IsModal=\"true\" @bind-Visible=\"@IsOpen\">\n" +
+                $"        <DialogTemplates>\n" +
+                $"            <Header>Add {txtTableName.Text}</Header>\n" +
+                $"            <Content>\n" +
+                $"                <EditForm Model=\"{txtTableNameToLowerFirstChar}\">\n" +
+                $"                    <DataAnnotationsValidator />" + 
+                $"                    \n\n\n\n\n" + 
 
-                $"        <EditForm Model=\"{txtTableNameToLowerFirstChar}\">\n" +
-                $"            <DataAnnotationsValidator />" + 
-                $"            \n\n\n\n\n" + 
-                $"        </EditForm>\n" + 
 
-                $"    </div>\n" +
+                $"                </EditForm>\n" + 
+                $"            </Content>\n" +
+                $"        </DialogTemplates>\n" +
+                $"        <DialogPositionData X=\"center\" Y=\"top\" />\n" +
+                $"        <DialogButtons>\n" +
+                $"            <DialogButton Content=\"Add\" IsPrimary=\"true\" OnClick=\"@Create{txtTableName.Text}\" />\n" +
+                $"            <DialogButton Content=\"Cancel\" IsPrimary=\"false\" OnClick=\"@CancelClick\" />\n" +
+                $"        </DialogButtons>\n" +
+                $"        <DialogAnimationSettings Effect=\"@DialogEffect.Zoom\"></DialogAnimationSettings>\n" +
+                $"    </SfDialog>\n" +
                 $"</div>\n\n" +
 
                 $"@code {{\n" +
                 $"    {txtTableName.Text} {txtTableNameToLowerFirstChar} = new {txtTableName.Text}();\n" +
-                $"    //[Parameter]\n" +
-                $"    //public List<{txtTableName.Text}ListItem> {txtPluralName.Text} {{ get; set; }} \n" +
-                $"    protected override async Task OnInitializedAsync()\n" +
+                $"    bool IsOpen {{ get; set; }} = false;\n\n" +
+                $"    protected void Create{txtTableName.Text}()\n" +
                 $"    {{\n" +
-                $"        await Task.Run(LoadData);\n" +
+                $"        {txtTableName.Text}Service.Add({txtTableNameToLowerFirstChar});\n" +
+                $"        ToastService.ShowSuccess($\"The new {txtTableNameToLowerFirstChar})\", \"Successfully Added\" );\n" +
+                $"        IsOpen = false;\n" +
+                $"        this.StateHasChanged();\n" +
                 $"    }}\n\n" +
-                $"    private void LoadData()\n" +
+                $"    public void OpenDialog()\n" +
                 $"    {{\n" +
-                $"        \n" +
+                $"        IsOpen = true;\n" +
+                $"        this.StateHasChanged();\n" +
                 $"    }}\n\n" +
-                $"    void Create{txtTableName.Text}()\n" +
+                $"    private void CancelClick()\n" +
                 $"    {{\n" +
-                $"        {txtTableName.Text}? new{txtTableName.Text} = {txtTableName.Text}Service.Add({txtTableNameToLowerFirstChar});\n" +
-                $"        new{txtTableName.Text} = {txtTableName.Text}Service.Update(new{txtTableName.Text});\n" +
-                $"        ToastService.ShowSuccess($\"The new {txtTableName.Text}\", \"Successfully Added\" );\n" +
-                $"        NavigationManager.NavigateTo(\"{txtPluralName.Text}List\");\n" +
+                $"        IsOpen = false;\n" +
+                $"        this.StateHasChanged();\n" +
+                $"    }}\n" +
+                $"}}\n\n";
+
+            return codeStructure;
+        }
+
+        public string GenerateEditPage()
+        {
+            string codeStructure = $"@page \"/{txtTableName.Text}Edit\"\n\n" +
+                $"@using Fitfactory.Data\n@using Fitfactory.DataViews\n" +
+                $"@using Fitfactory.Models\n@using Syncfusion.Blazor.Popups\n\n" +
+                $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n" +
+                $"@inject IToastService ToastService\n" +
+                $"@attribute [Authorize]\n\n" +
+
+                $"<div id=\"DialogTarget\">\n" +
+                $"    <SfDialog Target=\"#DialogTarget\" Width=\"335px\" AllowDragging=\"true\" IsModal=\"true\" @bind-Visible=\"@IsOpen\">\n" +
+                $"        <DialogTemplates>\n" +
+                $"            <Header>Edit {txtTableName.Text}</Header>\n" +
+                $"            <Content>\n" +
+                $"                <EditForm Model=\"{txtTableNameToLowerFirstChar}\">\n" +
+                $"                    <DataAnnotationsValidator />" +
+                $"                    \n\n\n\n\n" +
+
+
+                $"                </EditForm>\n" +
+                $"            </Content>\n" +
+                $"        </DialogTemplates>\n" +
+                $"        <DialogPositionData X=\"center\" Y=\"top\" />\n" +
+                $"        <DialogButtons>\n" +
+                $"            <DialogButton Content=\"Add\" IsPrimary=\"true\" OnClick=\"@Edit{txtTableName.Text}\" />\n" +
+                $"            <DialogButton Content=\"Cancel\" IsPrimary=\"false\" OnClick=\"@CancelClick\" />\n" +
+                $"        </DialogButtons>\n" +
+                $"        <DialogAnimationSettings Effect=\"@DialogEffect.Zoom\"></DialogAnimationSettings>\n" +
+                $"    </SfDialog>\n" +
+                $"</div>\n\n" +
+
+                $"@code {{\n" +
+                $"    public int {txtTableNameToLowerFirstChar}Id {{ get; set; }}\n" +
+                $"    {txtTableName.Text}? {txtTableNameToLowerFirstChar} = new {txtTableName.Text}();\n" +
+                $"    bool IsOpen {{ get; set; }} = false;\n\n" +
+                $"    protected void Edit{txtTableName.Text}()\n" +
+                $"    {{\n" +
+                $"        {txtTableName.Text}Service.Update({txtTableNameToLowerFirstChar});\n" +
+                $"        ToastService.ShowSuccess($\"The new {txtTableName.Text})\", \"Successfully Edited\" );\n" +
+                $"        IsOpen = false;\n" +
+                $"        this.StateHasChanged();\n" +
+                $"    }}\n\n" +
+                $"    public void OpenDialog()\n" +
+                $"    {{\n" +
+                $"        if ({txtTableNameToLowerFirstChar}Id > 0)\n" +
+                $"        {{\n" +
+                $"            {txtTableNameToLowerFirstChar} = {txtTableName.Text}Service.GetById({txtTableNameToLowerFirstChar}Id);\n" +
+                $"        }}\n" +
+                $"        IsOpen = true;\n" +
+                $"        this.StateHasChanged();\n" +
+                $"    }}\n\n" +
+                $"    private void CancelClick()\n" +
+                $"    {{\n" +
+                $"        IsOpen = false;\n" +
+                $"        this.StateHasChanged();\n" +
                 $"    }}\n" +
                 $"}}\n\n";
 
@@ -716,7 +853,7 @@ namespace FitFactoryCodeGeneratorV2
             cmbbox.Items.Add("Decimal");
             cmbbox.Items.Add("DateTime?");
 
-            foreach (var name in GetAllModelNames())
+            foreach (var name in GetAllModelNamesFromFolder())
             {
                 cmbbox.Items.Add(name);
             }
@@ -724,7 +861,7 @@ namespace FitFactoryCodeGeneratorV2
             ((DataGridViewComboBoxColumn)dataGridPropertyFields.Columns["Type"]).DataSource = cmbbox.Items;
         }
 
-        public List<string?> GetAllModelNames()
+        public List<string?> GetAllModelNamesFromFolder()
         {
             List<string?> modelNames = new List<string?>();
 
@@ -738,6 +875,46 @@ namespace FitFactoryCodeGeneratorV2
             }
 
             return modelNames;
+        }
+
+        public List<string?> GetAllDataTypes()
+        {
+            List<string?> dataTypesList = new List<string?>();
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+
+                if (row.Cells["PropertyName"].Value != null)
+                {
+                    if (row.Cells["Type"].Value.Equals("string?") || row.Cells["Type"].Value.Equals("int") ||
+                            row.Cells["Type"].Value.Equals("bool") || row.Cells["Type"].Value.Equals("Decimal") ||
+                            row.Cells["Type"].Value.Equals("DateTime?"))
+                    {
+                        dataTypesList.Add(row.Cells["Type"].Value.ToString());
+                    }
+                }
+            }
+
+            return dataTypesList;
+        }
+
+        public List<string?> GetAllModelNames()
+        {
+            List<string?> modelNamesList = new List<string?>();
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+
+                if (row.Cells["PropertyName"].Value != null)
+                {
+                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
+                            !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") &&
+                            !row.Cells["Type"].Value.Equals("DateTime?"))
+                    {
+                        modelNamesList.Add(row.Cells["Type"].Value.ToString());
+                    }
+                }
+            }
+
+            return modelNamesList;
         }
 
         #endregion
