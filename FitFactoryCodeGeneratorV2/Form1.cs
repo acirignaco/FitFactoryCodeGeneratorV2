@@ -250,7 +250,6 @@ namespace FitFactoryCodeGeneratorV2
             {
                 if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
                 {
-
                 }
                 else 
                 {
@@ -487,10 +486,10 @@ namespace FitFactoryCodeGeneratorV2
             $"        {{\n" +
 
             $"            <button @onclick=\"@(() => ShowAdd{txtTableName.Text}())\" class=\"btn btn-success\">Add {txtTableName.Text}</button>\n" +
-            $"            <button @onclick=\"@(() => ShowEdit{txtTableName.Text}())\" class=\"btn btn-success\">Add {txtTableName.Text}</button>\n" +
-            $"            <button @onclick=\"@(() => PrintReport())\" class=\"btn btn-primary\">Print Selected</button>\n" +
-            $"            <br />\n" +
+            $"            <button @onclick=\"@(() => ShowEdit{txtTableName.Text}())\" class=\"btn btn-success\">Edit {txtTableName.Text}</button>\n" +
+            $"            @*<button @onclick=\"@(() => PrintReport())\" class=\"btn btn-primary\">Print Selected</button>*@\n" +
             $"            <div class=\"container-fluid\">\n" +
+            $"                <br />\n" +
             $"                <SfGrid @ref=\"grid\" DataSource=\"@gridData\" RowHeight=\"38\" AllowSorting=\"true\" AllowFiltering=\"true\" AllowPaging=\"true\" AllowGrouping=\"true\" EnableHover=\"true\" AllowSelection=\"true\" AllowResizing=\"true\" AllowExcelExport=\"true\" AllowPdfExport=\"true\" ContextMenuItems=\"@(new List<object>() {{ \"ExcelExport\", \"CsvExport\" }})\" ShowColumnChooser=\"true\" AllowReordering=\"true\" Toolbar=\"@(new List<string>() {{ \"ColumnChooser\" }})\">\n" +
             $"                <GridFilterSettings Type=\"Syncfusion.Blazor.Grids.FilterType.Menu\"></GridFilterSettings>\n" +
             $"                <GridPageSettings PageSize=\"30\"></GridPageSettings>\n" +
@@ -554,6 +553,7 @@ namespace FitFactoryCodeGeneratorV2
             $"        {{\n" +
             $"            var selectedRow = this.grid.GetSelectedRecordsAsync();\n" +
             $"            int {txtTableNameToLowerFirstChar}Id = selectedRow.Result.AsEnumerable().First().Id;\n" +
+            $"            EditDialog.OpenDialog({txtTableNameToLowerFirstChar}Id);\n" +
             $"        }}\n" +
             $"        else\n" +
             $"        {{\n" +
@@ -588,56 +588,93 @@ namespace FitFactoryCodeGeneratorV2
         public string GenerateAddPage()
         {
             string codeStructure = $"@page \"/{txtTableName.Text}Add\"\n\n" +
-                $"@using Fitfactory.Data\n@using Fitfactory.DataViews\n" +
-                $"@using Fitfactory.Models\n@using Syncfusion.Blazor.Popups\n\n" +
-                $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n" +
-                $"@inject IToastService ToastService\n" +
-                $"@inject NavigationManager NavigationManager\n\n" +
-                $"@attribute [Authorize]\n\n" +
+            $"@using Fitfactory.Data\n@using Fitfactory.DataViews\n" +
+            $"@using Fitfactory.Models\n@using Syncfusion.Blazor.Popups\n\n" +
+            $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n" +
+            $"@inject IToastService ToastService\n" +
+            $"@inject NavigationManager NavigationManager\n\n" +
+            $"@attribute [Authorize]\n\n" +
 
-                $"<div id=\"DialogTarget\">\n" +
-                $"    <SfDialog Target=\"#DialogTarget\" Width=\"335px\" AllowDragging=\"true\" IsModal=\"true\" @bind-Visible=\"@IsOpen\">\n" +
-                $"        <DialogTemplates>\n" +
-                $"            <Header>Add {txtTableName.Text}</Header>\n" +
-                $"            <Content>\n" +
-                $"                <EditForm Model=\"{txtTableNameToLowerFirstChar}\">\n" +
-                $"                    <DataAnnotationsValidator />" + 
-                $"                    \n\n\n\n\n" + 
+            $"<div id=\"DialogTarget\">\n" +
+            $"    <SfDialog Target=\"#DialogTarget\" Width=\"335px\" AllowDragging=\"true\" IsModal=\"true\" @bind-Visible=\"@IsOpen\">\n" +
+            $"        <DialogTemplates>\n" +
+            $"            <Header>Add {txtTableName.Text}</Header>\n" +
+            $"            <Content>\n" +
+            $"                <EditForm Model=\"{txtTableNameToLowerFirstChar}\">\n" +
+            $"                    <DataAnnotationsValidator />" + 
+            $"                    \n\n\n\n\n";
 
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+                }
+                else
+                {
+       
+                    if (row.Cells["Type"].Value.Equals("string?"))
+                    {
+                        codeStructure += $"                    <label for=\"{row.Cells["PropertyName"].Value}\" class=\"form-label mt-4\">{row.Cells["PropertyName"].Value}</label>\n";
+                        codeStructure += $"                    <InputText type=\"int\" class=\"form-control\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" placeholder=\"Enter {row.Cells["PropertyName"].Value}\" ></InputText>\n\n";
+                    }
+                    else if (row.Cells["Type"].Value.Equals("int") && (bool)row.Cells["IsKey"].Value == false)
+                    {
+                        codeStructure += $"                    <label for=\"{row.Cells["PropertyName"].Value}\" class=\"form-label mt-4\">{row.Cells["PropertyName"].Value}</label>\n";
+                        codeStructure += $"                    <InputNumber type=\"text\" class=\"form-control\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" placeholder=\"Enter {row.Cells["PropertyName"].Value}\" ></InputNumber>\n";
+                    }
+                    else if (row.Cells["Type"].Value.Equals("bool"))
+                    {
+                        codeStructure += $"                    <br />\n";
+                        codeStructure += $"                    <input class=\"form-check-input\" type=\"checkbox\" value=\"true\" id=\"flexCheckDefault\" @bind=\"@{txtTableNameToLowerFirstChar}.{ row.Cells["PropertyName"].Value}\">\n";
+                        codeStructure += $"                    <label class=\"form-check-label\" for=\"flexCheckDefault\">{row.Cells["PropertyName"].Value}</label>\n\n";
+                    }
+                    else if (row.Cells["Type"].Value.Equals("Decimal"))
+                    {
+                        codeStructure += $"                    <label for=\"{row.Cells["PropertyName"].Value}\" class=\"form-label mt-4\">{row.Cells["PropertyName"].Value}</label>\n";
+                        codeStructure += $"                    <InputNumber type=\"text\" class=\"form-control\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" placeholder=\"Enter {row.Cells["PropertyName"].Value}\" ></InputNumber>\n";
+                    }
+                    else if (row.Cells["Type"].Value.Equals("DateTime?"))
+                    {
+                        codeStructure += $"                    <label for=\"{row.Cells["PropertyName"].Value}\" class=\"form-label mt-4\">{row.Cells["PropertyName"].Value}</label>\n";
+                        codeStructure += $"                    <InputDate type=\"date\" class=\"form-control\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" placeholder=\"\" ></InputDate>\n";
+                    }
 
-                $"                </EditForm>\n" + 
-                $"            </Content>\n" +
-                $"        </DialogTemplates>\n" +
-                $"        <DialogPositionData X=\"center\" Y=\"top\" />\n" +
-                $"        <DialogButtons>\n" +
-                $"            <DialogButton Content=\"Add\" IsPrimary=\"true\" OnClick=\"@Create{txtTableName.Text}\" />\n" +
-                $"            <DialogButton Content=\"Cancel\" IsPrimary=\"false\" OnClick=\"@CancelClick\" />\n" +
-                $"        </DialogButtons>\n" +
-                $"        <DialogAnimationSettings Effect=\"@DialogEffect.Zoom\"></DialogAnimationSettings>\n" +
-                $"    </SfDialog>\n" +
-                $"</div>\n\n" +
+                }
+            }
 
-                $"@code {{\n" +
-                $"    {txtTableName.Text} {txtTableNameToLowerFirstChar} = new {txtTableName.Text}();\n" +
-                $"    bool IsOpen {{ get; set; }} = false;\n\n" +
-                $"    protected void Create{txtTableName.Text}()\n" +
-                $"    {{\n" +
-                $"        {txtTableName.Text}Service.Add({txtTableNameToLowerFirstChar});\n" +
-                $"        ToastService.ShowSuccess($\"The new {txtTableNameToLowerFirstChar})\", \"Successfully Added\" );\n" +
-                $"        IsOpen = false;\n" +
-                $"        this.StateHasChanged();\n" +
-                $"    }}\n\n" +
-                $"    public void OpenDialog()\n" +
-                $"    {{\n" +
-                $"        IsOpen = true;\n" +
-                $"        this.StateHasChanged();\n" +
-                $"    }}\n\n" +
-                $"    private void CancelClick()\n" +
-                $"    {{\n" +
-                $"        IsOpen = false;\n" +
-                $"        this.StateHasChanged();\n" +
-                $"    }}\n" +
-                $"}}\n\n";
+            codeStructure += $"                </EditForm>\n" + 
+            $"            </Content>\n" +
+            $"        </DialogTemplates>\n" +
+            $"        <DialogPositionData X=\"center\" Y=\"top\" />\n" +
+            $"        <DialogButtons>\n" +
+            $"            <DialogButton Content=\"Add\" IsPrimary=\"true\" OnClick=\"@Create{txtTableName.Text}\" />\n" +
+            $"            <DialogButton Content=\"Cancel\" IsPrimary=\"false\" OnClick=\"@CancelClick\" />\n" +
+            $"        </DialogButtons>\n" +
+            $"        <DialogAnimationSettings Effect=\"@DialogEffect.Zoom\"></DialogAnimationSettings>\n" +
+            $"    </SfDialog>\n" +
+            $"</div>\n\n" +
+
+            $"@code {{\n" +
+            $"    {txtTableName.Text} {txtTableNameToLowerFirstChar} = new {txtTableName.Text}();\n" +
+            $"    bool IsOpen {{ get; set; }} = false;\n\n" +
+            $"    protected void Create{txtTableName.Text}()\n" +
+            $"    {{\n" +
+            $"        {txtTableName.Text}Service.Add({txtTableNameToLowerFirstChar});\n" +
+            $"        ToastService.ShowSuccess($\"The new {txtTableNameToLowerFirstChar})\", \"Successfully Added\" );\n" +
+            $"        IsOpen = false;\n" +
+            $"        this.StateHasChanged();\n" +
+            $"    }}\n\n" +
+            $"    public void OpenDialog()\n" +
+            $"    {{\n" +
+            $"        IsOpen = true;\n" +
+            $"        this.StateHasChanged();\n" +
+            $"    }}\n\n" +
+            $"    private void CancelClick()\n" +
+            $"    {{\n" +
+            $"        IsOpen = false;\n" +
+            $"        this.StateHasChanged();\n" +
+            $"    }}\n" +
+            $"}}\n\n";
 
             return codeStructure;
         }
@@ -645,60 +682,98 @@ namespace FitFactoryCodeGeneratorV2
         public string GenerateEditPage()
         {
             string codeStructure = $"@page \"/{txtTableName.Text}Edit\"\n\n" +
-                $"@using Fitfactory.Data\n@using Fitfactory.DataViews\n" +
-                $"@using Fitfactory.Models\n@using Syncfusion.Blazor.Popups\n\n" +
-                $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n" +
-                $"@inject IToastService ToastService\n" +
-                $"@attribute [Authorize]\n\n" +
+            $"@using Fitfactory.Data\n@using Fitfactory.DataViews\n" +
+            $"@using Fitfactory.Models\n@using Syncfusion.Blazor.Popups\n\n" +
+            $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n" +
+            $"@inject IToastService ToastService\n" +
+            $"@attribute [Authorize]\n\n" +
 
-                $"<div id=\"DialogTarget\">\n" +
-                $"    <SfDialog Target=\"#DialogTarget\" Width=\"335px\" AllowDragging=\"true\" IsModal=\"true\" @bind-Visible=\"@IsOpen\">\n" +
-                $"        <DialogTemplates>\n" +
-                $"            <Header>Edit {txtTableName.Text}</Header>\n" +
-                $"            <Content>\n" +
-                $"                <EditForm Model=\"{txtTableNameToLowerFirstChar}\">\n" +
-                $"                    <DataAnnotationsValidator />" +
-                $"                    \n\n\n\n\n" +
+            $"<div id=\"DialogTarget\">\n" +
+            $"    <SfDialog Target=\"#DialogTarget\" Width=\"335px\" AllowDragging=\"true\" IsModal=\"true\" @bind-Visible=\"@IsOpen\">\n" +
+            $"        <DialogTemplates>\n" +
+            $"            <Header>Edit {txtTableName.Text}</Header>\n" +
+            $"            <Content>\n" +
+            $"                <EditForm Model=\"{txtTableNameToLowerFirstChar}\">\n" +
+            $"                    <DataAnnotationsValidator />" +
+            $"                    \n\n";
+
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+                }
+                else
+                {
+                    string primaryKeyString = "";
+                    if((row.Cells["IsKey"].Value != null) && (bool)row.Cells["IsKey"].Value == true)
+                    {
+                        primaryKeyString = "disabled = \"disabled\"";
+                    }
+
+                    if (row.Cells["Type"].Value.Equals("string?"))
+                    {
+                        codeStructure += $"                    <label for=\"{row.Cells["PropertyName"].Value}\" class=\"form-label mt-4\">{row.Cells["PropertyName"].Value}</label>\n";
+                        codeStructure += $"                    <InputText type=\"int\" class=\"form-control\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" placeholder=\"Enter {row.Cells["PropertyName"].Value}\" ></InputText>\n\n";
+                    }
+                    else if (row.Cells["Type"].Value.Equals("int"))
+                    {
+                        codeStructure += $"                    <label for=\"{row.Cells["PropertyName"].Value}\" class=\"form-label mt-4\">{row.Cells["PropertyName"].Value}</label>\n";
+                        codeStructure += $"                    <InputNumber type=\"text\" class=\"form-control\" {primaryKeyString} @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" placeholder=\"Enter {row.Cells["PropertyName"].Value}\" ></InputNumber>\n";
+                    }
+                    else if (row.Cells["Type"].Value.Equals("bool"))
+                    {
+                        codeStructure += $"                    <br />\n";
+                        codeStructure += $"                    <input class=\"form-check-input\" type=\"checkbox\" value=\"true\" id=\"flexCheckDefault\" @bind=\"@{txtTableNameToLowerFirstChar}.{ row.Cells["PropertyName"].Value}\">\n";
+                        codeStructure += $"                    <label class=\"form-check-label\" for=\"flexCheckDefault\">Default {txtTableName.Text}</label>\n\n";
+                    }
+                    else if (row.Cells["Type"].Value.Equals("DateTime?"))
+                    {
+                        codeStructure += $"                    <label for=\"{row.Cells["PropertyName"].Value}\" class=\"form-label mt-4\">{row.Cells["PropertyName"].Value}</label>\n";
+                        codeStructure += $"                    <InputDate type=\"date\" class=\"form-control\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" placeholder=\"\" ></InputDate>\n";
+                    }
+
+                }
+            }
 
 
-                $"                </EditForm>\n" +
-                $"            </Content>\n" +
-                $"        </DialogTemplates>\n" +
-                $"        <DialogPositionData X=\"center\" Y=\"top\" />\n" +
-                $"        <DialogButtons>\n" +
-                $"            <DialogButton Content=\"Add\" IsPrimary=\"true\" OnClick=\"@Edit{txtTableName.Text}\" />\n" +
-                $"            <DialogButton Content=\"Cancel\" IsPrimary=\"false\" OnClick=\"@CancelClick\" />\n" +
-                $"        </DialogButtons>\n" +
-                $"        <DialogAnimationSettings Effect=\"@DialogEffect.Zoom\"></DialogAnimationSettings>\n" +
-                $"    </SfDialog>\n" +
-                $"</div>\n\n" +
+            codeStructure += $"                </EditForm>\n" +
+            $"            </Content>\n" +
+            $"        </DialogTemplates>\n" +
+            $"        <DialogPositionData X=\"center\" Y=\"top\" />\n" +
+            $"        <DialogButtons>\n" +
+            $"            <DialogButton Content=\"Edit\" IsPrimary=\"true\" OnClick=\"@Edit{txtTableName.Text}\" />\n" +
+            $"            <DialogButton Content=\"Cancel\" IsPrimary=\"false\" OnClick=\"@CancelClick\" />\n" +
+            $"        </DialogButtons>\n" +
+            $"        <DialogAnimationSettings Effect=\"@DialogEffect.Zoom\"></DialogAnimationSettings>\n" +
+            $"    </SfDialog>\n" +
+            $"</div>\n\n" +
 
-                $"@code {{\n" +
-                $"    public int {txtTableNameToLowerFirstChar}Id {{ get; set; }}\n" +
-                $"    {txtTableName.Text}? {txtTableNameToLowerFirstChar} = new {txtTableName.Text}();\n" +
-                $"    bool IsOpen {{ get; set; }} = false;\n\n" +
-                $"    protected void Edit{txtTableName.Text}()\n" +
-                $"    {{\n" +
-                $"        {txtTableName.Text}Service.Update({txtTableNameToLowerFirstChar});\n" +
-                $"        ToastService.ShowSuccess($\"The new {txtTableName.Text})\", \"Successfully Edited\" );\n" +
-                $"        IsOpen = false;\n" +
-                $"        this.StateHasChanged();\n" +
-                $"    }}\n\n" +
-                $"    public void OpenDialog()\n" +
-                $"    {{\n" +
-                $"        if ({txtTableNameToLowerFirstChar}Id > 0)\n" +
-                $"        {{\n" +
-                $"            {txtTableNameToLowerFirstChar} = {txtTableName.Text}Service.GetById({txtTableNameToLowerFirstChar}Id);\n" +
-                $"        }}\n" +
-                $"        IsOpen = true;\n" +
-                $"        this.StateHasChanged();\n" +
-                $"    }}\n\n" +
-                $"    private void CancelClick()\n" +
-                $"    {{\n" +
-                $"        IsOpen = false;\n" +
-                $"        this.StateHasChanged();\n" +
-                $"    }}\n" +
-                $"}}\n\n";
+            $"@code {{\n" +
+            $"    public int {txtTableNameToLowerFirstChar}Id {{ get; set; }}\n" +
+            $"    {txtTableName.Text}? {txtTableNameToLowerFirstChar} = new {txtTableName.Text}();\n" +
+            $"    bool IsOpen {{ get; set; }} = false;\n\n" +
+            $"    protected void Edit{txtTableName.Text}()\n" +
+            $"    {{\n" +
+            $"        {txtTableName.Text}Service.Update({txtTableNameToLowerFirstChar});\n" +
+            $"        ToastService.ShowSuccess($\"The new {txtTableName.Text}\", \"Successfully Edited\" );\n" +
+            $"        IsOpen = false;\n" +
+            $"        this.StateHasChanged();\n" +
+            $"    }}\n\n" +
+            $"    public void OpenDialog(int {txtTableNameToLowerFirstChar}Id)\n" +
+            $"    {{\n" +
+            $"        if ({txtTableNameToLowerFirstChar}Id > 0)\n" +
+            $"        {{\n" +
+            $"            {txtTableNameToLowerFirstChar} = {txtTableName.Text}Service.GetById({txtTableNameToLowerFirstChar}Id);\n" +
+            $"        }}\n" +
+            $"        IsOpen = true;\n" +
+            $"        this.StateHasChanged();\n" +
+            $"    }}\n\n" +
+            $"    private void CancelClick()\n" +
+            $"    {{\n" +
+            $"        IsOpen = false;\n" +
+            $"        this.StateHasChanged();\n" +
+            $"    }}\n" +
+            $"}}\n\n";
 
             return codeStructure;
         }
@@ -729,7 +804,7 @@ namespace FitFactoryCodeGeneratorV2
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error Creating View!!");
+                MessageBox.Show($"Error Creating View!! Error message: {ex.Message}");
             }
 
         }
