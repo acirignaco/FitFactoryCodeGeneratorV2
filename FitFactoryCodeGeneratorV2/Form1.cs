@@ -253,9 +253,9 @@ namespace FitFactoryCodeGeneratorV2
                 }
                 else 
                 {
-                    if (row.Cells["Type"].Value.Equals("DateTime?"))
+                    if (row.Cells["Type"].Value.Equals("DateTime"))
                     {
-                        codeStructure += $"            {row.Cells["PropertyName"].Value} = DateTime.UtcNow;\n";
+                        codeStructure += $"            {row.Cells["PropertyName"].Value} = DateTime.UtcNow.AddHours(1);\n";
                     }
                 }
             }
@@ -272,7 +272,7 @@ namespace FitFactoryCodeGeneratorV2
                 {
                     if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
                         !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") && 
-                        !row.Cells["Type"].Value.Equals("DateTime?"))
+                        !row.Cells["Type"].Value.Equals("DateTime"))
                     {
                         if ((row.Cells["Required"].Value != null) && (bool)row.Cells["Required"].Value == true)
                         {
@@ -378,7 +378,7 @@ namespace FitFactoryCodeGeneratorV2
                 {
                     if (row.Cells["Type"].Value.Equals("string?") || row.Cells["Type"].Value.Equals("int") ||
                         row.Cells["Type"].Value.Equals("bool") || row.Cells["Type"].Value.Equals("Decimal") || 
-                        row.Cells["Type"].Value.Equals("DateTime?"))
+                        row.Cells["Type"].Value.Equals("DateTime"))
                     { 
 
                         if ((row.Cells["IsKey"].Value != null) && (bool)row.Cells["IsKey"].Value == true)
@@ -504,7 +504,7 @@ namespace FitFactoryCodeGeneratorV2
                 {
                     if (row.Cells["Type"].Value.Equals("string?") || row.Cells["Type"].Value.Equals("int") ||
                             row.Cells["Type"].Value.Equals("bool") || row.Cells["Type"].Value.Equals("Decimal") || 
-                            row.Cells["Type"].Value.Equals("DateTime?"))
+                            row.Cells["Type"].Value.Equals("DateTime"))
                     {
 
                         string primaryKeyString = "";
@@ -575,7 +575,7 @@ namespace FitFactoryCodeGeneratorV2
             //    {
             //        if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
             //                !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") &&
-            //                !row.Cells["Type"].Value.Equals("DateTime?"))
+            //                !row.Cells["Type"].Value.Equals("DateTime"))
             //        {
             //            codeStructure += $"        parameters.Add(\"{txtTableNameToLowerFirstChar + "s"}\", {row.Cells["Type"].Value.ToString().Remove(row.Cells["Type"].Value.ToString().Length - 1, 1)}Service.GetList());\n";
             //        }
@@ -633,16 +633,22 @@ namespace FitFactoryCodeGeneratorV2
                         codeStructure += $"                    <label for=\"{row.Cells["PropertyName"].Value}\" class=\"form-label mt-4\">{row.Cells["PropertyName"].Value}</label>\n";
                         codeStructure += $"                    <InputNumber type=\"text\" class=\"form-control\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" placeholder=\"Enter {row.Cells["PropertyName"].Value}\" ></InputNumber>\n";
                     }
-                    else if (row.Cells["Type"].Value.Equals("DateTime?"))
+                    else if (row.Cells["Type"].Value.Equals("DateTime"))
                     {
+                        //codeStructure += $"                    <label for=\"{row.Cells["PropertyName"].Value}\" class=\"form-label mt-4\">{row.Cells["PropertyName"].Value}</label>\n";
+                        //codeStructure += $"                    <InputDate class=\"form-control\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" placeholder=\"\" ></InputDate>\n";
+                        //<label class="example-label">Select Date and Time</label>
+                        //<SfDateTimePicker Format="dd MMM yyyy HH:mm:ss" TValue="DateTime" @bind-Value="@wtTort.DateT" ShowClearButton="true"></SfDateTimePicker>
+
+                        
                         codeStructure += $"                    <label for=\"{row.Cells["PropertyName"].Value}\" class=\"form-label mt-4\">{row.Cells["PropertyName"].Value}</label>\n";
-                        codeStructure += $"                    <InputDate type=\"date\" class=\"form-control\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" placeholder=\"\" ></InputDate>\n";
+                        codeStructure += $"                    <SfDateTimePicker Format=\"dd MMM yyyy HH:mm:ss\" TValue=\"DateTime\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" ShowClearButton=\"true\"></SfDateTimePicker>\n";
                     }
 
                 }
             }
 
-            codeStructure += $"                </EditForm>\n" + 
+            codeStructure += $"                </EditForm>\n" +
             $"            </Content>\n" +
             $"        </DialogTemplates>\n" +
             $"        <DialogPositionData X=\"center\" Y=\"top\" />\n" +
@@ -658,7 +664,29 @@ namespace FitFactoryCodeGeneratorV2
             $"    {txtTableName.Text} {txtTableNameToLowerFirstChar} = new {txtTableName.Text}();\n" +
             $"    bool IsOpen {{ get; set; }} = false;\n\n" +
             $"    protected void Create{txtTableName.Text}()\n" +
-            $"    {{\n" +
+            $"    {{\n";
+
+            codeStructure += $"        var localZone = DateTime.UtcNow;\n";
+
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+                }
+                else
+                {
+
+                    if (row.Cells["Type"].Value.Equals("DateTime"))
+                    {
+                        codeStructure += $"        localZone = TimeZoneInfo.ConvertTimeToUtc({txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value});\n";
+                        codeStructure += $"        {txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value} = localZone;\n";
+
+                    }
+
+                }
+            }
+
+            codeStructure += $"    \n" +
             $"        {txtTableName.Text}Service.Add({txtTableNameToLowerFirstChar});\n" +
             $"        ToastService.ShowSuccess($\"The new {txtTableNameToLowerFirstChar})\", \"Successfully Added\" );\n" +
             $"        IsOpen = false;\n" +
@@ -726,10 +754,16 @@ namespace FitFactoryCodeGeneratorV2
                         codeStructure += $"                    <input class=\"form-check-input\" type=\"checkbox\" value=\"true\" id=\"flexCheckDefault\" @bind=\"@{txtTableNameToLowerFirstChar}.{ row.Cells["PropertyName"].Value}\">\n";
                         codeStructure += $"                    <label class=\"form-check-label\" for=\"flexCheckDefault\">Default {txtTableName.Text}</label>\n\n";
                     }
-                    else if (row.Cells["Type"].Value.Equals("DateTime?"))
+                    else if (row.Cells["Type"].Value.Equals("DateTime"))
                     {
+                        //codeStructure += $"                    <label for=\"{row.Cells["PropertyName"].Value}\" class=\"form-label mt-4\">{row.Cells["PropertyName"].Value}</label>\n";
+                        //codeStructure += $"                    <InputDate class=\"form-control\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" placeholder=\"\" ></InputDate>\n";
+                        //<label class="example-label">Select Date and Time</label>
+                        //<SfDateTimePicker Format="dd MMM yyyy HH:mm:ss" TValue="DateTime" @bind-Value="@wtTort.DateT" ShowClearButton="true"></SfDateTimePicker>
+
+
                         codeStructure += $"                    <label for=\"{row.Cells["PropertyName"].Value}\" class=\"form-label mt-4\">{row.Cells["PropertyName"].Value}</label>\n";
-                        codeStructure += $"                    <InputDate type=\"date\" class=\"form-control\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" placeholder=\"\" ></InputDate>\n";
+                        codeStructure += $"                    <SfDateTimePicker Format=\"dd MMM yyyy HH:mm:ss\" TValue=\"DateTime\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" ShowClearButton=\"true\"></SfDateTimePicker>\n\n";
                     }
 
                 }
@@ -753,7 +787,29 @@ namespace FitFactoryCodeGeneratorV2
             $"    {txtTableName.Text}? {txtTableNameToLowerFirstChar} = new {txtTableName.Text}();\n" +
             $"    bool IsOpen {{ get; set; }} = false;\n\n" +
             $"    protected void Edit{txtTableName.Text}()\n" +
-            $"    {{\n" +
+            $"    {{\n";
+
+            codeStructure += $"        var localZone = DateTime.UtcNow;\n";
+
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+                }
+                else
+                {
+
+                    if (row.Cells["Type"].Value.Equals("DateTime"))
+                    {
+                        codeStructure += $"        localZone = TimeZoneInfo.ConvertTimeToUtc({txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value});\n";
+                        codeStructure += $"        {txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value} = localZone;\n";
+
+                    }
+
+                }
+            }
+
+            codeStructure += $"    \n" +
             $"        {txtTableName.Text}Service.Update({txtTableNameToLowerFirstChar});\n" +
             $"        ToastService.ShowSuccess($\"The new {txtTableName.Text}\", \"Successfully Edited\" );\n" +
             $"        IsOpen = false;\n" +
@@ -847,12 +903,12 @@ namespace FitFactoryCodeGeneratorV2
                     {
                         sqlStatement += "\"" + row.Cells["PropertyName"].Value + "\"" + $" NUMERIC({row.Cells["Length"].Value}) " + required + ",";
                     }
-                    else if (row.Cells["Type"].Value.Equals("DateTime?"))
+                    else if (row.Cells["Type"].Value.Equals("DateTime"))
                     {
                         sqlStatement += "\"" + row.Cells["PropertyName"].Value + "\"" + $" TIMESTAMPTZ " + required + ",";
                     }
 
-                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") && !row.Cells["Type"].Value.Equals("DateTime?") &&
+                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") && !row.Cells["Type"].Value.Equals("DateTime") &&
                     !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal"))
                     {
                         sqlStatement += "\"" + row.Cells["PropertyName"].Value + "Id\"" + $" INTEGER " + required + ",";
@@ -878,7 +934,7 @@ namespace FitFactoryCodeGeneratorV2
                 }
                 else
                 {
-                    if (row.Cells["Type"].Value.Equals("string?") || row.Cells["Type"].Value.Equals("int") || row.Cells["Type"].Value.Equals("DateTime?") ||
+                    if (row.Cells["Type"].Value.Equals("string?") || row.Cells["Type"].Value.Equals("int") || row.Cells["Type"].Value.Equals("DateTime") ||
                        row.Cells["Type"].Value.Equals("bool") || row.Cells["Type"].Value.Equals("Decimal"))
                     {
                         sqlStatement += $"\"{txtPluralName.Text}\"" + "." + $"\"{row.Cells[0].Value}\"" + ",";
@@ -926,7 +982,7 @@ namespace FitFactoryCodeGeneratorV2
             cmbbox.Items.Add("int");
             cmbbox.Items.Add("bool");
             cmbbox.Items.Add("Decimal");
-            cmbbox.Items.Add("DateTime?");
+            cmbbox.Items.Add("DateTime");
 
             foreach (var name in GetAllModelNamesFromFolder())
             {
@@ -962,7 +1018,7 @@ namespace FitFactoryCodeGeneratorV2
                 {
                     if (row.Cells["Type"].Value.Equals("string?") || row.Cells["Type"].Value.Equals("int") ||
                             row.Cells["Type"].Value.Equals("bool") || row.Cells["Type"].Value.Equals("Decimal") ||
-                            row.Cells["Type"].Value.Equals("DateTime?"))
+                            row.Cells["Type"].Value.Equals("DateTime"))
                     {
                         dataTypesList.Add(row.Cells["Type"].Value.ToString());
                     }
@@ -982,7 +1038,7 @@ namespace FitFactoryCodeGeneratorV2
                 {
                     if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
                             !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") &&
-                            !row.Cells["Type"].Value.Equals("DateTime?"))
+                            !row.Cells["Type"].Value.Equals("DateTime"))
                     {
                         modelNamesList.Add(row.Cells["Type"].Value.ToString());
                     }
