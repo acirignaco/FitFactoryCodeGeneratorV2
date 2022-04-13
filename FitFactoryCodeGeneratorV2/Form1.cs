@@ -997,7 +997,7 @@ namespace FitFactoryCodeGeneratorV2
             List<string?> modelNames = new List<string?>();
 
             //string directory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Models\\";
-            DirectoryInfo di = new DirectoryInfo($"{folderLocation}\\Models\\");
+            DirectoryInfo di = new DirectoryInfo($"C:\\Users\\William\\source\\repos\\Fitfactory\\Fitfactory\\Models\\");
             FileInfo[] files  = di.GetFiles("*");
 
             foreach (var file in files)
