@@ -65,9 +65,6 @@ namespace FitFactoryCodeGeneratorV2
             //listOfDataTypes = GetAllDataTypes();
             //listOfModelNames = GetAllModelNames();
 
-
-
-
             string modelsPath = folderLocation + "\\Models\\" + txtTableName.Text + ".cs";
             string corePath = folderLocation + "\\Data\\" + txtTableName.Text + "Service.Core.cs";
             string servicePath = folderLocation + "\\Data\\" + txtTableName.Text + "Service.cs";
@@ -76,6 +73,7 @@ namespace FitFactoryCodeGeneratorV2
             string pagesPath = folderLocation + "\\Pages\\" + $"\\{txtPluralName.Text}\\" + txtPluralName.Text + "List.razor";
             string pagesAddPath = folderLocation + "\\Pages\\" + $"\\{txtPluralName.Text}\\" + txtTableName.Text + "Add.razor";
             string pagesEditPath = folderLocation + "\\Pages\\" + $"\\{txtPluralName.Text}\\" + txtTableName.Text + "Edit.razor";
+            string programClass = folderLocation + "\\Program.cs";
 
             List<string> paths = new List<string>();
             paths.Add(modelsPath);
@@ -89,6 +87,7 @@ namespace FitFactoryCodeGeneratorV2
             paths.Add(pagesPath);
             paths.Add(pagesAddPath);
             paths.Add(pagesEditPath);
+            paths.Add(programClass);    
 
             foreach (var path in paths)
             {
@@ -159,6 +158,10 @@ namespace FitFactoryCodeGeneratorV2
             {
                 destinationFile = folderLocation + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + txtTableName.Text + "Edit.bak";
             }
+            else if (sourceFile.Contains("Program.cs"))
+            {
+                destinationFile = folderLocation + "\\BackUpFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + "Program.cs.bak";
+            }
 
             // Todo - might have an issue if sourceFile doesn't exist
             // To move a file to a new location 
@@ -212,6 +215,10 @@ namespace FitFactoryCodeGeneratorV2
             else if (sourceFile.Contains(".razor") && sourceFile.Contains("Edit"))
             {
                 csContent = GenerateEditPage();
+            }
+            else if (sourceFile.Contains("Program.cs"))
+            {
+                csContent = AmmendProgramClass();
             }
 
             // write content to file            
@@ -438,6 +445,19 @@ namespace FitFactoryCodeGeneratorV2
                 originalAppDbContextContent = originalAppDbContextContent.Insert(originalAppDbContextContent.IndexOf("^") + 1, modelBuilderString);
             }
             return originalAppDbContextContent;
+        }
+
+        public string AmmendProgramClass()
+        {
+            string originalProgramClassLocation = folderLocation + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + "Program.cs.bak";
+            string newProgramClass = File.ReadAllText(originalProgramClassLocation);
+
+            if (!newProgramClass.Contains($"builder.Services.AddScoped<{txtTableName.Text}Service>();"))
+            {
+                string serviceScopeString = $"\nbuilder.Services.AddScoped<{txtTableName.Text}Service>();"; 
+                newProgramClass = newProgramClass.Insert(newProgramClass.IndexOf("%") + 1, serviceScopeString);
+            }
+            return newProgramClass;
         }
 
 
