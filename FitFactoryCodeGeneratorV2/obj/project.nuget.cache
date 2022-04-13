@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "hl27bcVHQkeqtqL8jMKBR1k/qSwzjSFWopgTSjF6DUX2b1xY0uHAJfZ/lFUQ3Pfny/Chwc/PKHXUHL/6xxF5Zg==",
+  "dgSpecHash": "Lb0ULq1KdUcOpnLYKYgD/hscbB4+KUrpDyxPngo8AyB35hshOUEetJEdO8MSjHzNFTo9ztOHugwKsCUMRyn2zA==",
   "success": true,
   "projectFilePath": "C:\\Users\\Aley\\source\\repos\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2\\FitFactoryCodeGeneratorV2.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\Aley\\.nuget\\packages\\npgsql\\6.0.3\\npgsql.6.0.3.nupkg.sha512",
+    "C:\\Users\\Aley\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
+  ],
   "logs": []
 }

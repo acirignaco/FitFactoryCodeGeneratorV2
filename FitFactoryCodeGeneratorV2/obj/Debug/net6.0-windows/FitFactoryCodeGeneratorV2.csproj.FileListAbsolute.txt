@@ -4,13 +4,15 @@ C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\b
 C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\bin\Debug\net6.0-windows\FitFactoryCodeGeneratorV2.dll
 C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\bin\Debug\net6.0-windows\ref\FitFactoryCodeGeneratorV2.dll
 C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\bin\Debug\net6.0-windows\FitFactoryCodeGeneratorV2.pdb
-C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\obj\Debug\net6.0-windows\FitFactoryCodeGeneratorV2.csproj.AssemblyReference.cache
+C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\bin\Debug\net6.0-windows\Npgsql.dll
 C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\obj\Debug\net6.0-windows\FitFactoryCodeGeneratorV2.Form1.resources
+C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\obj\Debug\net6.0-windows\FitFactoryCodeGeneratorV2.Form2.resources
 C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\obj\Debug\net6.0-windows\FitFactoryCodeGeneratorV2.csproj.GenerateResource.cache
 C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\obj\Debug\net6.0-windows\FitFactoryCodeGeneratorV2.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\obj\Debug\net6.0-windows\FitFactoryCodeGeneratorV2.AssemblyInfoInputs.cache
 C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\obj\Debug\net6.0-windows\FitFactoryCodeGeneratorV2.AssemblyInfo.cs
 C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\obj\Debug\net6.0-windows\FitFactoryCodeGeneratorV2.csproj.CoreCompileInputs.cache
+C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\obj\Debug\net6.0-windows\FitFactoryCodeGeneratorV2.csproj.CopyComplete
 C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\obj\Debug\net6.0-windows\FitFactoryCodeGeneratorV2.dll
 C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\obj\Debug\net6.0-windows\ref\FitFactoryCodeGeneratorV2.dll
 C:\Users\Aley\source\repos\FitFactoryCodeGeneratorV2\FitFactoryCodeGeneratorV2\obj\Debug\net6.0-windows\FitFactoryCodeGeneratorV2.pdb
