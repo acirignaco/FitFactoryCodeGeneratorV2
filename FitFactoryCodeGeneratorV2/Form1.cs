@@ -272,7 +272,7 @@ namespace FitFactoryCodeGeneratorV2
                 {
                     if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
                         !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") && 
-                        !row.Cells["Type"].Value.Equals("DateTime"))
+                        !row.Cells["Type"].Value.Equals("DateTime") && !row.Cells["Type"].Value.ToString().Contains("List<"))
                     {
                         if ((row.Cells["Required"].Value != null) && (bool)row.Cells["Required"].Value == true)
                         {
@@ -332,7 +332,12 @@ namespace FitFactoryCodeGeneratorV2
             {
                 if (row.Cells[0].Value != null && row.Cells["IsKey"].Value == null)
                 {
-                    codeStructure += $"\n{dtab}{dtab}dataObject.{row.Cells[0].Value} = obj.{row.Cells[0].Value};";
+                    if (row.Cells["Type"].Value.Equals("string?") || row.Cells["Type"].Value.Equals("int") ||
+                        row.Cells["Type"].Value.Equals("bool") || row.Cells["Type"].Value.Equals("Decimal") ||
+                        row.Cells["Type"].Value.Equals("DateTime"))
+                    {
+                        codeStructure += $"\n{dtab}{dtab}dataObject.{row.Cells[0].Value} = obj.{row.Cells[0].Value};";
+                    }
                 }
             }
 
@@ -752,7 +757,7 @@ namespace FitFactoryCodeGeneratorV2
                     {
                         codeStructure += $"                    <br />\n";
                         codeStructure += $"                    <input class=\"form-check-input\" type=\"checkbox\" value=\"true\" id=\"flexCheckDefault\" @bind=\"@{txtTableNameToLowerFirstChar}.{ row.Cells["PropertyName"].Value}\">\n";
-                        codeStructure += $"                    <label class=\"form-check-label\" for=\"flexCheckDefault\">Default {txtTableName.Text}</label>\n\n";
+                        codeStructure += $"                    <label class=\"form-check-label\" for=\"flexCheckDefault\">{txtTableNameToLowerFirstChar}.{ row.Cells["PropertyName"].Value}</label>\n\n";
                     }
                     else if (row.Cells["Type"].Value.Equals("DateTime"))
                     {
@@ -775,7 +780,7 @@ namespace FitFactoryCodeGeneratorV2
             $"        </DialogTemplates>\n" +
             $"        <DialogPositionData X=\"center\" Y=\"top\" />\n" +
             $"        <DialogButtons>\n" +
-            $"            <DialogButton Content=\"Edit\" IsPrimary=\"true\" OnClick=\"@Edit{txtTableName.Text}\" />\n" +
+            $"            <DialogButton Content=\"Save\" IsPrimary=\"true\" OnClick=\"@Save{txtTableName.Text}\" />\n" +
             $"            <DialogButton Content=\"Cancel\" IsPrimary=\"false\" OnClick=\"@CancelClick\" />\n" +
             $"        </DialogButtons>\n" +
             $"        <DialogAnimationSettings Effect=\"@DialogEffect.Zoom\"></DialogAnimationSettings>\n" +
@@ -786,7 +791,7 @@ namespace FitFactoryCodeGeneratorV2
             $"    public int {txtTableNameToLowerFirstChar}Id {{ get; set; }}\n" +
             $"    {txtTableName.Text}? {txtTableNameToLowerFirstChar} = new {txtTableName.Text}();\n" +
             $"    bool IsOpen {{ get; set; }} = false;\n\n" +
-            $"    protected void Edit{txtTableName.Text}()\n" +
+            $"    protected void Save{txtTableName.Text}()\n" +
             $"    {{\n";
 
             codeStructure += $"        var localZone = DateTime.UtcNow;\n";
@@ -803,7 +808,6 @@ namespace FitFactoryCodeGeneratorV2
                     {
                         codeStructure += $"        localZone = TimeZoneInfo.ConvertTimeToUtc({txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value});\n";
                         codeStructure += $"        {txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value} = localZone;\n";
-
                     }
 
                 }
@@ -860,7 +864,7 @@ namespace FitFactoryCodeGeneratorV2
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error Creating View!! Error message: {ex.Message}");
+                MessageBox.Show($"View Already Exists!! Error message: {ex.Message}");
             }
 
         }
@@ -909,7 +913,7 @@ namespace FitFactoryCodeGeneratorV2
                     }
 
                     if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") && !row.Cells["Type"].Value.Equals("DateTime") &&
-                    !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal"))
+                    !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") && !row.Cells["Type"].Value.ToString().Contains("List<"))
                     {
                         sqlStatement += "\"" + row.Cells["PropertyName"].Value + "Id\"" + $" INTEGER " + required + ",";
                     }
@@ -1003,6 +1007,7 @@ namespace FitFactoryCodeGeneratorV2
             foreach (var file in files)
             {
                 modelNames.Add(file.Name.Substring(0, file.Name.Length - 3) + "?");
+                modelNames.Add("List<" + file.Name.Substring(0, file.Name.Length - 3) + ">?");
             }
 
             return modelNames;
