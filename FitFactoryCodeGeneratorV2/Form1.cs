@@ -510,8 +510,8 @@ namespace FitFactoryCodeGeneratorV2
             $"        else\n" +
             $"        {{\n" +
 
-            $"            <button @onclick=\"@(() => ShowAdd{txtTableName.Text}())\" class=\"btn btn-success\">Add {txtTableName.Text}</button>\n" +
-            $"            <button @onclick=\"@(() => ShowEdit{txtTableName.Text}())\" class=\"btn btn-success\">Edit {txtTableName.Text}</button>\n" +
+            $"            <button @onclick=\"@(() => ShowAdd{txtTableName.Text}())\" class=\"btn btn-success\">Add</button>\n" +
+            $"            <button @onclick=\"@(() => ShowEdit{txtTableName.Text}())\" class=\"btn btn-primary\">Edit</button>\n" +
             $"            @*<button @onclick=\"@(() => PrintReport())\" class=\"btn btn-primary\">Print Selected</button>*@\n" +
             $"            <div class=\"container-fluid\">\n" +
             $"                <br />\n" +
@@ -627,7 +627,7 @@ namespace FitFactoryCodeGeneratorV2
             $"            <Content>\n" +
             $"                <EditForm Model=\"{txtTableNameToLowerFirstChar}\">\n" +
             $"                    <DataAnnotationsValidator />" + 
-            $"                    \n\n\n\n\n";
+            $"                    \n\n";
 
             foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
             {
@@ -689,27 +689,8 @@ namespace FitFactoryCodeGeneratorV2
             $"    {txtTableName.Text} {txtTableNameToLowerFirstChar} = new {txtTableName.Text}();\n" +
             $"    bool IsOpen {{ get; set; }} = false;\n\n" +
             $"    protected void Create{txtTableName.Text}()\n" +
-            $"    {{\n";
+            $"    {{";
 
-            codeStructure += $"        var localZone = DateTime.UtcNow;\n";
-
-            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
-            {
-                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
-                {
-                }
-                else
-                {
-
-                    if (row.Cells["Type"].Value.Equals("DateTime"))
-                    {
-                        codeStructure += $"        localZone = TimeZoneInfo.ConvertTimeToUtc({txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value});\n";
-                        codeStructure += $"        {txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value} = localZone;\n";
-
-                    }
-
-                }
-            }
 
             codeStructure += $"    \n" +
             $"        {txtTableName.Text}Service.Add({txtTableNameToLowerFirstChar});\n" +
@@ -814,28 +795,10 @@ namespace FitFactoryCodeGeneratorV2
             $"    protected void Save{txtTableName.Text}()\n" +
             $"    {{\n";
 
-            codeStructure += $"        var localZone = DateTime.UtcNow;\n";
-
-            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
-            {
-                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
-                {
-                }
-                else
-                {
-
-                    if (row.Cells["Type"].Value.Equals("DateTime"))
-                    {
-                        codeStructure += $"        localZone = TimeZoneInfo.ConvertTimeToUtc({txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value});\n";
-                        codeStructure += $"        {txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value} = localZone;\n";
-                    }
-
-                }
-            }
 
             codeStructure += $"    \n" +
             $"        {txtTableName.Text}Service.Update({txtTableNameToLowerFirstChar});\n" +
-            $"        ToastService.ShowSuccess($\"The new {txtTableName.Text}\", \"Successfully Edited\" );\n" +
+            $"        ToastService.ShowSuccess($\"The new {txtTableName.Text}\", \"Successfully Edited\");\n" +
             $"        IsOpen = false;\n" +
             $"        this.StateHasChanged();\n" +
             $"    }}\n\n" +
