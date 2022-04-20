@@ -25,6 +25,7 @@ namespace FitFactoryCodeGeneratorV2
         {
             InitializeComponent();
         }
+
         public bool FormValidation()
         {
             if (folderLocation == string.Empty)
@@ -110,6 +111,7 @@ namespace FitFactoryCodeGeneratorV2
             }
 
             GeneratePosgresTableAndView();
+            UpdateListRelationships();
             ClearFields();
         }
 
@@ -617,7 +619,6 @@ namespace FitFactoryCodeGeneratorV2
             $"@using Fitfactory.Models\n@using Syncfusion.Blazor.Popups\n\n" +
             $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n" +
             $"@inject IToastService ToastService\n" +
-            $"@inject NavigationManager NavigationManager\n\n" +
             $"@attribute [Authorize]\n\n" +
 
             $"<div id=\"DialogTarget\">\n" +
@@ -694,7 +695,7 @@ namespace FitFactoryCodeGeneratorV2
 
             codeStructure += $"    \n" +
             $"        {txtTableName.Text}Service.Add({txtTableNameToLowerFirstChar});\n" +
-            $"        ToastService.ShowSuccess($\"The new {txtTableNameToLowerFirstChar})\", \"Successfully Added\" );\n" +
+            $"        ToastService.ShowSuccess($\"The new {txtTableNameToLowerFirstChar}\", \"Successfully Added\" );\n" +
             $"        IsOpen = false;\n" +
             $"        this.StateHasChanged();\n" +
             $"    }}\n\n" +
@@ -798,7 +799,7 @@ namespace FitFactoryCodeGeneratorV2
 
             codeStructure += $"    \n" +
             $"        {txtTableName.Text}Service.Update({txtTableNameToLowerFirstChar});\n" +
-            $"        ToastService.ShowSuccess($\"The new {txtTableName.Text}\", \"Successfully Edited\");\n" +
+            $"        ToastService.ShowSuccess($\"The {txtTableName.Text}\", \"Successfully Edited\");\n" +
             $"        IsOpen = false;\n" +
             $"        this.StateHasChanged();\n" +
             $"    }}\n\n" +
@@ -936,6 +937,94 @@ namespace FitFactoryCodeGeneratorV2
         }
 
         #endregion
+
+
+        #region "WHEN CREATE LIST UPDATE EVERYTHING ... STUFF"
+
+        private void UpdateListRelationships()
+        {
+            // Check if there are lists in datagrid 
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+
+                }
+                else
+                {
+                    if (row.Cells["Type"].Value.ToString().Contains("List<"))
+                    {
+                        string type = row.Cells["Type"].Value.ToString();
+                        string listPluralName = row.Cells["ListTypePlural"].Value.ToString(); 
+
+                        // METHOD: code for extracting model name from List<XxxXxxx>?
+                        string? extractedModelName = ExtractModelName(type);
+
+                        // METHOD: code for updating extractModelName from List
+                        UpdateModelWithRelationship(extractedModelName);
+
+                        // METHOD: code for updating database table
+                        UpdateTableWithRelationship(extractedModelName, listPluralName);
+                    }                    
+                }
+            }
+        }
+
+        private string? ExtractModelName(string listName)
+        {
+            string? extractModelName = listName.Remove(0, 5);
+            extractModelName = extractModelName.Substring(0, extractModelName.Length - 2);
+
+            return extractModelName;
+        }
+
+        private void UpdateModelWithRelationship(string extractModelName)
+        {
+            // find location of model passed through
+            string modelPath = folderLocation + "\\Models\\" + extractModelName + ".cs";
+            string backupDestinationFile = folderLocation + "\\BackupFiles\\" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss___") + extractModelName + ".bak";
+            
+            // To move a file to a new location 
+            System.IO.File.Move(modelPath, backupDestinationFile);
+            
+            
+            string originalModelContent = File.ReadAllText(backupDestinationFile);
+
+            if (!originalModelContent.Contains($"{extractModelName}Id"))
+            {
+                // then add changes to a SPECIFIC location
+                string modelNameString = $"\n        public int {txtTableName.Text}Id {{ get; set; }}\n        public {txtTableName.Text} {txtTableName.Text} {{ get; set; }}\n\n    ";
+                originalModelContent = originalModelContent.Insert(originalModelContent.LastIndexOf("}") - 2, modelNameString);
+            }
+
+
+            StreamWriterCreate(modelPath, originalModelContent);
+
+        }
+
+        private void UpdateTableWithRelationship(string listName, string listPluralName)
+        {
+            var connectionString = "Server=109.228.39.158;Port=5432;Database=Fitfactory;Persist Security Info=False;User ID=postgres;Password=postgres;";
+
+            using var con = new NpgsqlConnection(connectionString);
+            con.Open();
+
+            using var cmd = new NpgsqlCommand();
+            cmd.Connection = con;
+
+            cmd.CommandText = $"ALTER TABLE \"{listPluralName}\" ADD COLUMN \"{txtTableName.Text}Id\" INTEGER;";
+            cmd.ExecuteNonQuery();
+
+
+            // ALTER TABLE tablename 
+            // ADD COLUMN columnname VARCHAR;
+            string sqlUpdateTableStatement = $"ALTER TABLE \"{listPluralName}\" ADD COLUMN \"{listName}Id\" INTEGER;";
+
+        }
+
+        #endregion
+
+
 
         #region "MISC"
 
