@@ -264,7 +264,7 @@ namespace FitFactoryCodeGeneratorV2
                 {
                     if (row.Cells["Type"].Value.Equals("DateTime"))
                     {
-                        codeStructure += $"            {row.Cells["PropertyName"].Value} = DateTime.UtcNow.AddHours(1);\n";
+                        codeStructure += $"            {row.Cells["PropertyName"].Value} = DateTime.Now;\n";
                     }
                 }
             }
@@ -489,13 +489,35 @@ namespace FitFactoryCodeGeneratorV2
 
         public string GenerateListPage()
         {
+            string temp = "";
             string codeStructure = $"@page \"/{txtPluralName.Text}List\"\n\n" +
             $"<PageTitle>{txtPluralName.Text} - Fitfactory ERP</PageTitle>\n\n" +
             $"@using Fitfactory.Data\n@using Fitfactory.DataViews\n" +
             $"@using Fitfactory.Models\n@using Syncfusion.Blazor.Grids\n\n" +
             $"@inject IToastService ToastService\n" +
-            $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n" +
-            $"@inject NavigationManager NavigationManager\n\n" +
+            $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n";
+
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+
+                }
+                else
+                {
+                    temp = row.Cells["Type"].Value.ToString().Substring(0, row.Cells["Type"].Value.ToString().Length - 1);
+                    
+                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
+                        !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") &&
+                        !row.Cells["Type"].Value.Equals("DateTime") && !row.Cells["Type"].Value.ToString().Contains("List<"))
+                    {
+                        codeStructure += $"@inject {temp}Service {temp}Service\n";
+                    }
+                }
+            }
+
+            codeStructure += $"@inject NavigationManager NavigationManager\n\n" +
             $"@attribute [Authorize]\n\n" +
             $"<br/>\n" +
             $"<div class=\"card\">\n" +
@@ -514,7 +536,7 @@ namespace FitFactoryCodeGeneratorV2
 
             $"            <button @onclick=\"@(() => ShowAdd{txtTableName.Text}())\" class=\"btn btn-success\">Add</button>\n" +
             $"            <button @onclick=\"@(() => ShowEdit{txtTableName.Text}())\" class=\"btn btn-primary\">Edit</button>\n" +
-            $"            @*<button @onclick=\"@(() => PrintReport())\" class=\"btn btn-primary\">Print Selected</button>*@\n" +
+            $"            <button @onclick=\"@(() => PrintReport())\" class=\"btn btn-primary\">Print Selected</button>\n" +
             $"            <div class=\"container-fluid\">\n" +
             $"                <br />\n" +
             $"                <SfGrid @ref=\"grid\" DataSource=\"@gridData\" RowHeight=\"38\" AllowSorting=\"true\" AllowFiltering=\"true\" AllowPaging=\"true\" AllowGrouping=\"true\" EnableHover=\"true\" AllowSelection=\"true\" AllowResizing=\"true\" AllowExcelExport=\"true\" AllowPdfExport=\"true\" ContextMenuItems=\"@(new List<object>() {{ \"ExcelExport\", \"CsvExport\" }})\" ShowColumnChooser=\"true\" AllowReordering=\"true\" Toolbar=\"@(new List<string>() {{ \"ColumnChooser\" }})\">\n" +
@@ -536,6 +558,7 @@ namespace FitFactoryCodeGeneratorV2
 
                         string primaryKeyString = "";
                         string booleanString = "";
+
                         if ((row.Cells["IsKey"].Value != null) && (bool)row.Cells["IsKey"].Value == true)
                         {
                             primaryKeyString = $"IsPrimaryKey =\"true\" TextAlign=\"TextAlign.Center\"";
@@ -588,8 +611,35 @@ namespace FitFactoryCodeGeneratorV2
             $"        }}\n" +
             $"    }}\n\n" +
             $"    void ShowAdd{txtTableName.Text}()\n" +
+            $"    {{\n";
+
+            string addDialogParams = "";
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+
+                }
+                else
+                {
+                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
+                        !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") &&
+                        !row.Cells["Type"].Value.Equals("DateTime") && !row.Cells["Type"].Value.ToString().Contains("List<"))
+                    {
+                        temp = row.Cells["Type"].Value.ToString().Substring(0, row.Cells["Type"].Value.ToString().Length - 1);
+
+                        addDialogParams += temp + "List, ";
+                        codeStructure += $"        List<{temp}ListItem> {temp}List = new List<{temp}ListItem>();\n";
+                        codeStructure += $"        {temp}List = {temp}Service.GetList();\n";
+                    }
+                }
+            }
+
+            codeStructure += $"        AddDialog.OpenDialog({addDialogParams.Substring(0, addDialogParams.Length - 2)});\n" +
+            $"    }}\n\n" +
+            $"    void PrintReport()\n" +
             $"    {{\n" +
-            $"        AddDialog.OpenDialog();\n" +
+            $"        NavigationManager.NavigateTo(\"reportviewer\", true);\n" +
             $"    }}\n" +
             $"}}\n";
 
@@ -614,13 +664,36 @@ namespace FitFactoryCodeGeneratorV2
 
         public string GenerateAddPage()
         {
+            string temp = "";
             string codeStructure = $"@page \"/{txtTableName.Text}Add\"\n\n" +
             $"@using Fitfactory.Data\n@using Fitfactory.DataViews\n" +
             $"@using Fitfactory.Models\n@using Syncfusion.Blazor.Popups\n\n" +
-            $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n" +
             $"@inject IToastService ToastService\n" +
-            $"@attribute [Authorize]\n\n" +
+            $"@inject {txtTableName.Text}Service {txtTableName.Text}Service\n";
 
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+
+                }
+                else
+                {
+                    temp = row.Cells["Type"].Value.ToString().Substring(0, row.Cells["Type"].Value.ToString().Length - 1);
+
+                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
+                        !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") &&
+                        !row.Cells["Type"].Value.Equals("DateTime") && !row.Cells["Type"].Value.ToString().Contains("List<"))
+                    {
+                        codeStructure += $"@inject {temp}Service {temp}Service\n";
+                    }
+                }
+            }
+
+
+            codeStructure += $"@inject NavigationManager NavigationManager\n\n" +
+            $"@attribute [Authorize]\n\n" +
             $"<div id=\"DialogTarget\">\n" +
             $"    <SfDialog Target=\"#DialogTarget\" Width=\"335px\" AllowDragging=\"true\" IsModal=\"true\" @bind-Visible=\"@IsOpen\">\n" +
             $"        <DialogTemplates>\n" +
@@ -669,6 +742,18 @@ namespace FitFactoryCodeGeneratorV2
                         
                         codeStructure += $"                    <label for=\"{row.Cells["PropertyName"].Value}\" class=\"form-label mt-4\">{row.Cells["PropertyName"].Value}</label>\n";
                         codeStructure += $"                    <SfDateTimePicker Format=\"dd MMM yyyy HH:mm:ss\" TValue=\"DateTime\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}\" ShowClearButton=\"true\"></SfDateTimePicker>\n";
+                    } 
+                    else if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
+                        !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") &&
+                        !row.Cells["Type"].Value.Equals("DateTime") && !row.Cells["Type"].Value.ToString().Contains("List<"))
+                    {
+                        temp = row.Cells["Type"].Value.ToString().Substring(0, row.Cells["Type"].Value.ToString().Length - 1);
+
+                        codeStructure += $"                    <label class=\"form-label mt-4\">{row.Cells["Type"].Value.ToString()}</label>\n";
+                        codeStructure += $"                    <SfDropDownList CssClass=\"form-control\" @bind-Value=\"@{txtTableNameToLowerFirstChar}.{row.Cells["PropertyName"].Value}Id\" TValue=\"int\" TItem=\"{temp}ListItem\" DataSource=\"@{temp}List\">\n";
+                        codeStructure += $"                        <DropDownListFieldSettings Text=\"Name\" Value=\"Id\"></DropDownListFieldSettings>\n";
+                        codeStructure += $"                    </SfDropDownList>\n";
+                        codeStructure += $"                    <br />\n\n";
                     }
 
                 }
@@ -688,8 +773,29 @@ namespace FitFactoryCodeGeneratorV2
 
             $"@code {{\n" +
             $"    {txtTableName.Text} {txtTableNameToLowerFirstChar} = new {txtTableName.Text}();\n" +
-            $"    bool IsOpen {{ get; set; }} = false;\n\n" +
-            $"    protected void Create{txtTableName.Text}()\n" +
+            $"    bool IsOpen {{ get; set; }} = false;\n";
+
+
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+
+                }
+                else
+                {
+                    temp = row.Cells["Type"].Value.ToString().Substring(0, row.Cells["Type"].Value.ToString().Length - 1);
+
+                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
+                        !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") &&
+                        !row.Cells["Type"].Value.Equals("DateTime") && !row.Cells["Type"].Value.ToString().Contains("List<"))
+                    {
+                        codeStructure += $"    public List<{temp}ListItem> {temp}List {{ get; set; }}\n";
+                    }
+                }
+            }
+
+            codeStructure += $"    protected void Create{txtTableName.Text}()\n" +
             $"    {{";
 
 
@@ -698,10 +804,53 @@ namespace FitFactoryCodeGeneratorV2
             $"        ToastService.ShowSuccess($\"The new {txtTableNameToLowerFirstChar}\", \"Successfully Added\" );\n" +
             $"        IsOpen = false;\n" +
             $"        this.StateHasChanged();\n" +
-            $"    }}\n\n" +
-            $"    public void OpenDialog()\n" +
-            $"    {{\n" +
-            $"        IsOpen = true;\n" +
+            $"    }}\n\n";
+
+
+            string openDialogParams = "";
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+
+                }
+                else
+                {
+                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
+                        !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") &&
+                        !row.Cells["Type"].Value.Equals("DateTime") && !row.Cells["Type"].Value.ToString().Contains("List<"))
+                    {
+                        temp = row.Cells["Type"].Value.ToString().Substring(0, row.Cells["Type"].Value.ToString().Length - 1);
+
+                        openDialogParams += $"List<{temp}ListItem> {temp}, ";
+                    }
+                }
+            }
+
+
+            codeStructure += $"    public void OpenDialog({openDialogParams.Substring(0, openDialogParams.Length - 2)})\n";
+            codeStructure += $"    {{\n";
+
+            foreach (DataGridViewRow row in dataGridPropertyFields.Rows)
+            {
+
+                if (row.Cells[0].Value == null || row.Cells[0].Value.ToString() == "")
+                {
+
+                }
+                else
+                {
+                    temp = row.Cells["Type"].Value.ToString().Substring(0, row.Cells["Type"].Value.ToString().Length - 1);
+
+                    if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") &&
+                        !row.Cells["Type"].Value.Equals("bool") && !row.Cells["Type"].Value.Equals("Decimal") &&
+                        !row.Cells["Type"].Value.Equals("DateTime") && !row.Cells["Type"].Value.ToString().Contains("List<"))
+                    {
+                        codeStructure += $"        {temp}List = {temp};\n";
+                    }
+                }
+            }
+            codeStructure += $"        IsOpen = true;\n" +
             $"        this.StateHasChanged();\n" +
             $"    }}\n\n" +
             $"    private void CancelClick()\n" +
@@ -893,7 +1042,7 @@ namespace FitFactoryCodeGeneratorV2
                     }
                     else if (row.Cells["Type"].Value.Equals("DateTime"))
                     {
-                        sqlStatement += "\"" + row.Cells["PropertyName"].Value + "\"" + $" TIMESTAMPTZ " + required + ",";
+                        sqlStatement += "\"" + row.Cells["PropertyName"].Value + "\"" + $" TIMESTAMP " + required + ",";
                     }
 
                     if (!row.Cells["Type"].Value.Equals("string?") && !row.Cells["Type"].Value.Equals("int") && !row.Cells["Type"].Value.Equals("DateTime") &&
